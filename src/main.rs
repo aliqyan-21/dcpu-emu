@@ -1,7 +1,7 @@
 pub struct DCPU {
-    _ram: [u16; 0x10000], // 128 KB ram
+    ram: [u16; 0x10000],  // 128 KB ram
     _registers: [u16; 8], // A B C X Y Z I J
-    _pc: u16,             //  program counter
+    pc: u16,              //  program counter
     _sp: u16,             // stack pointer
     _ex: u16,             // extra/excess
     _ia: u16,             // interrupt address
@@ -12,20 +12,88 @@ const START_ADDRESS: u16 = 0x0000;
 impl DCPU {
     pub fn new() -> Self {
         Self {
-            _ram: [0; 0x10000],
+            ram: [0; 0x10000],
             _registers: [0; 8],
-            _pc: START_ADDRESS,
+            pc: START_ADDRESS,
             _sp: 0,
             _ex: 0,
             _ia: 0,
         }
     }
 
-    pub fn load_rom(&mut self, program: Vec<u16>) {
-        for (i, &p) in program.iter().enumerate() {
-            self._ram[START_ADDRESS as usize + i] = p;
+    fn load_program(path: String) -> Vec<u16> {
+        let mut program: Vec<u16> = Vec::new();
+        let content = std::fs::read_to_string(path).expect("file could not be opened/read");
+        for line in content.lines() {
+            let code = line.trim().to_lowercase();
+            let code = u16::from_str_radix(code.strip_prefix("0x").unwrap_or(&code), 16)
+                .expect("street fighter");
+            program.push(code);
         }
-        println!("Program Loaded, pc is at 0x{:04x}", self._pc)
+        return program;
+    }
+
+    pub fn load_rom(&mut self, path: String) {
+        let program: Vec<u16> = DCPU::load_program(path);
+        for (i, &p) in program.iter().enumerate() {
+            self.ram[START_ADDRESS as usize + i] = p;
+        }
+        println!("Program Loaded, pc is at 0x{:04x}", self.pc)
+    }
+
+    fn decode(inst: u16) -> (u16, u16, u16) {
+        let opcode = inst & 0x001F;
+        let b = (inst & 0x03e0) >> 5;
+        let a = (inst & 0xfc00) >> 10;
+        (opcode, a, b)
+    }
+
+    fn get_src(&mut self, op: u16) -> u16 {
+        match op {
+            0x00..=0x07 => self._registers[op as usize],
+            _ => {
+                todo!("exhaust")
+            }
+        }
+    }
+
+    fn get_dst(&mut self, op: u16) -> &mut u16 {
+        match op {
+            0x00..=0x07 => return &mut self._registers[op as usize],
+            _ => {
+                todo!("exhaust")
+            }
+        }
+    }
+
+    pub fn run(&mut self) {
+        loop {
+            // fetch
+            let inst = self.ram[self.pc as usize];
+            if inst == 0x0000 {
+                println!("program finished, stopping execution...");
+                break;
+            }
+            self.pc += 1;
+
+            // decode
+            let (opcode, a, b) = DCPU::decode(inst);
+            println!("opcode: {opcode}, a: {a}, b: {b}");
+
+            // execute
+            match opcode {
+                0x00 => {
+                    todo!("special instruction")
+                }
+                0x01 => *self.get_dst(b) = self.get_src(a),
+                0x02 => *self.get_dst(b) = self.get_src(a) + *self.get_dst(b), // todo: do it properly and check for overflow
+                0x03 => {
+                    todo!("SUB b, a")
+                }
+                // todo: and so on...implement more instructions
+                _ => {}
+            }
+        }
     }
 }
 
@@ -34,21 +102,10 @@ impl DCPU {
 * 0x01
 * 0x02
 */
-fn load_program(path: String) -> Vec<u16> {
-    let mut program: Vec<u16> = Vec::new();
-    let content = std::fs::read_to_string(path).expect("file could not be opened/read");
-    for line in content.lines() {
-        let code = line.trim().to_lowercase();
-        let code = u16::from_str_radix(code.strip_prefix("0x").unwrap_or(&code), 16)
-            .expect("street fighter");
-        program.push(code);
-    }
-    return program;
-}
 
 fn main() {
     let mut dcpu = DCPU::new();
     println!("DCPU initialized successfully!");
-    let program: Vec<u16> = load_program("file.txt".to_string());
-    dcpu.load_rom(program);
+    dcpu.load_rom("file.txt".to_string());
+    dcpu.run();
 }
