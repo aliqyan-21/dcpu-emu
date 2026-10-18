@@ -105,9 +105,43 @@ impl DCPU {
         self.ex = ((res >> 16) & 0xffff) as u16;
     }
 
+    fn mli(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a) as i16 as i32;
+        let val_b = *self.get_dst(b) as i16 as i32;
+        let res = val_b * val_a;
+        *self.get_dst(b) = res as u16;
+        self.ex = ((res as u32 >> 16) & 0xffff) as u16;
+    }
+
+    fn div(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a) as u32;
+        let val_b = *self.get_dst(b) as u32;
+        if val_a == 0 {
+            *self.get_dst(b) = 0;
+            self.ex = 0;
+        } else {
+            let res = val_b / val_a;
+            *self.get_dst(b) = res as u16;
+            self.ex = ((val_b << 16) / val_a & 0xffff) as u16;
+        }
+    }
+
+    fn divi(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a) as i16 as i32;
+        let val_b = *self.get_dst(b) as i16 as i32;
+        if val_a == 0 {
+            *self.get_dst(b) = 0;
+            self.ex = 0;
+        } else {
+            let res = val_b / val_a;
+            *self.get_dst(b) = res as u16;
+            self.ex = (((val_b as u32) << 16) / (val_a as u32) & 0xffff) as u16;
+        }
+    }
+
     pub fn run(&mut self) {
-        self.registers[1] = 0; // B = 0
-        self.registers[2] = 3; // C = 2
+        self.registers[1] = u16::MAX;
+        self.registers[2] = u16::MAX;
         loop {
             // fetch
             let inst = self.ram[self.pc as usize];
@@ -130,6 +164,9 @@ impl DCPU {
                 0x02 => self.add(a, b),
                 0x03 => self.sub(a, b),
                 0x04 => self.mul(a, b),
+                0x05 => self.mli(a, b),
+                0x06 => self.div(a, b),
+                0x07 => self.divi(a, b),
                 // todo: and so on...implement more instructions
                 _ => {}
             }
