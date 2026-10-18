@@ -1,10 +1,10 @@
 pub struct DCPU {
-    ram: [u16; 0x10000],  // 128 KB ram
-    _registers: [u16; 8], // A B C X Y Z I J
-    pc: u16,              //  program counter
-    _sp: u16,             // stack pointer
-    _ex: u16,             // extra/excess
-    _ia: u16,             // interrupt address
+    ram: [u16; 0x10000], // 128 KB ram
+    registers: [u16; 8], // A B C X Y Z I J
+    pc: u16,             //  program counter
+    _sp: u16,            // stack pointer
+    ex: u16,             // extra/excess
+    _ia: u16,            // interrupt address
 }
 
 const START_ADDRESS: u16 = 0x0000;
@@ -13,11 +13,17 @@ impl DCPU {
     pub fn new() -> Self {
         Self {
             ram: [0; 0x10000],
-            _registers: [0; 8],
+            registers: [0; 8],
             pc: START_ADDRESS,
             _sp: 0,
-            _ex: 0,
+            ex: 0,
             _ia: 0,
+        }
+    }
+
+    fn print_state(&mut self) {
+        for i in self.registers {
+            println!("registers: 0x{:04x}", i);
         }
     }
 
@@ -43,14 +49,14 @@ impl DCPU {
 
     fn decode(inst: u16) -> (u16, u16, u16) {
         let opcode = inst & 0x001F;
-        let b = (inst & 0x03e0) >> 5;
-        let a = (inst & 0xfc00) >> 10;
+        let b = (inst & 0x03E0) >> 5;
+        let a = (inst & 0xFC00) >> 10;
         (opcode, a, b)
     }
 
     fn get_src(&mut self, op: u16) -> u16 {
         match op {
-            0x00..=0x07 => self._registers[op as usize],
+            0x00..=0x07 => self.registers[op as usize],
             _ => {
                 todo!("exhaust")
             }
@@ -59,14 +65,25 @@ impl DCPU {
 
     fn get_dst(&mut self, op: u16) -> &mut u16 {
         match op {
-            0x00..=0x07 => return &mut self._registers[op as usize],
+            0x00..=0x07 => return &mut self.registers[op as usize],
             _ => {
                 todo!("exhaust")
             }
         }
     }
 
+    fn add(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        let (res, overflow) = val_b.overflowing_add(val_a);
+        *self.get_dst(b) = res;
+        self.ex = if overflow { 0x0001 } else { 0x0000 };
+    }
+
     pub fn run(&mut self) {
+        self.registers[0] = 3; // A = 3
+        self.registers[1] = 0; // B = 0
+        self.registers[2] = 2; // C = 2
         loop {
             // fetch
             let inst = self.ram[self.pc as usize];
@@ -86,13 +103,14 @@ impl DCPU {
                     todo!("special instruction")
                 }
                 0x01 => *self.get_dst(b) = self.get_src(a),
-                0x02 => *self.get_dst(b) = self.get_src(a) + *self.get_dst(b), // todo: do it properly and check for overflow
+                0x02 => self.add(a, b),
                 0x03 => {
                     todo!("SUB b, a")
                 }
                 // todo: and so on...implement more instructions
                 _ => {}
             }
+            self.print_state();
         }
     }
 }
