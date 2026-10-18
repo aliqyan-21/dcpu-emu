@@ -81,7 +81,7 @@ impl DCPU {
         }
     }
 
-    fn add(&mut self, a: u16, b: u16) {
+    fn dcpu_add(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a);
         let val_b = *self.get_dst(b);
         let (res, overflow) = val_b.overflowing_add(val_a);
@@ -89,7 +89,7 @@ impl DCPU {
         self.ex = if overflow { 0x0001 } else { 0x0000 };
     }
 
-    fn sub(&mut self, a: u16, b: u16) {
+    fn dcpu_sub(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a);
         let val_b = *self.get_dst(b);
         let (res, underflow) = val_b.overflowing_sub(val_a);
@@ -97,7 +97,7 @@ impl DCPU {
         self.ex = if underflow { 0xFFFF } else { 0x0000 };
     }
 
-    fn mul(&mut self, a: u16, b: u16) {
+    fn dcpu_mul(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a) as u32;
         let val_b = *self.get_dst(b) as u32;
         let res = val_b * val_a;
@@ -105,7 +105,7 @@ impl DCPU {
         self.ex = ((res >> 16) & 0xffff) as u16;
     }
 
-    fn mli(&mut self, a: u16, b: u16) {
+    fn dcpu_mli(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a) as i16 as i32;
         let val_b = *self.get_dst(b) as i16 as i32;
         let res = val_b * val_a;
@@ -113,7 +113,7 @@ impl DCPU {
         self.ex = ((res as u32 >> 16) & 0xffff) as u16;
     }
 
-    fn div(&mut self, a: u16, b: u16) {
+    fn dcpu_div(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a) as u32;
         let val_b = *self.get_dst(b) as u32;
         if val_a == 0 {
@@ -126,7 +126,7 @@ impl DCPU {
         }
     }
 
-    fn divi(&mut self, a: u16, b: u16) {
+    fn dcpu_divi(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a) as i16 as i32;
         let val_b = *self.get_dst(b) as i16 as i32;
         if val_a == 0 {
@@ -139,9 +139,65 @@ impl DCPU {
         }
     }
 
+    fn dcpu_mod(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        if val_a == 0 {
+            *self.get_dst(b) = 0;
+        } else {
+            let res = val_b % val_a;
+            *self.get_dst(b) = res as u16;
+        }
+    }
+
+    fn dcpu_mdi(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a) as i16;
+        let val_b = *self.get_dst(b) as i16;
+        if val_a == 0 {
+            *self.get_dst(b) = 0;
+        } else {
+            let res = val_b % val_a;
+            *self.get_dst(b) = res as u16;
+        }
+    }
+
+    fn dcpu_and(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        *self.get_dst(b) = val_b & val_a;
+    }
+
+    fn dcpu_bor(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        *self.get_dst(b) = val_b | val_a;
+    }
+
+    fn dcpu_xor(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        *self.get_dst(b) = val_b ^ val_a;
+    }
+
+    fn dcpu_shr(&mut self, a: u16, b: u16) {
+        let val_a = (self.get_src(a) as u32).min(16);
+        let val_b = *self.get_dst(b) as u32;
+        *self.get_dst(b) = (val_b >> val_a) as u16;
+        self.ex = ((((val_b as u32) << 16) >> val_a) & 0xffff) as u16;
+    }
+
+    fn dcpu_asr(&mut self, a: u16, b: u16) {
+        let val_a = (self.get_src(a) as u32).min(16);
+        let val_b = *self.get_dst(b) as i16 as i32;
+        *self.get_dst(b) = (val_b >> val_a) as u16;
+        self.ex = ((((val_b as i32) << 16) >> val_a) as u32 & 0xffff) as u16;
+    }
+
     pub fn run(&mut self) {
         self.registers[1] = u16::MAX;
         self.registers[2] = u16::MAX;
+        // self.registers[1] = 0;
+        // self.registers[2] = 3;
         loop {
             // fetch
             let inst = self.ram[self.pc as usize];
@@ -161,12 +217,19 @@ impl DCPU {
                     todo!("special instruction")
                 }
                 0x01 => *self.get_dst(b) = self.get_src(a),
-                0x02 => self.add(a, b),
-                0x03 => self.sub(a, b),
-                0x04 => self.mul(a, b),
-                0x05 => self.mli(a, b),
-                0x06 => self.div(a, b),
-                0x07 => self.divi(a, b),
+                0x02 => self.dcpu_add(a, b),
+                0x03 => self.dcpu_sub(a, b),
+                0x04 => self.dcpu_mul(a, b),
+                0x05 => self.dcpu_mli(a, b),
+                0x06 => self.dcpu_div(a, b),
+                0x07 => self.dcpu_divi(a, b),
+                0x08 => self.dcpu_mod(a, b),
+                0x09 => self.dcpu_mdi(a, b),
+                0x0a => self.dcpu_and(a, b),
+                0x0b => self.dcpu_bor(a, b),
+                0x0c => self.dcpu_xor(a, b),
+                0x0d => self.dcpu_shr(a, b),
+                0x0e => self.dcpu_asr(a, b),
                 // todo: and so on...implement more instructions
                 _ => {}
             }
