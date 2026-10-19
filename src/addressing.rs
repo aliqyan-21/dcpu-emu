@@ -4,6 +4,22 @@ impl DCPU {
     pub fn get_src(&mut self, op: u16) -> u16 {
         match op {
             0x00..=0x07 => self.registers[op as usize],
+            0x08..=0x0f => {
+                let reg_val = self.registers[(op - 0x08) as usize];
+                self.ram[reg_val as usize]
+            }
+            0x10..=0x17 => {
+                let next_word = self.ram[self.pc as usize];
+                self.pc += 1;
+                let reg_val = self.registers[(op - 0x10) as usize];
+                let reg_val = reg_val.wrapping_add(next_word);
+                self.ram[reg_val as usize]
+            }
+            0x18 => {
+                let val = self.ram[self.sp as usize];
+                self.sp += 1;
+                val
+            }
             _ => {
                 todo!("exhaust")
             }
@@ -13,6 +29,21 @@ impl DCPU {
     pub fn get_dst(&mut self, op: u16) -> &mut u16 {
         match op {
             0x00..=0x07 => &mut self.registers[op as usize],
+            0x08..=0x0f => {
+                let reg_val = self.registers[(op - 0x08) as usize];
+                &mut self.ram[reg_val as usize]
+            }
+            0x10..=0x17 => {
+                let next_word = self.ram[self.pc as usize];
+                self.pc += 1;
+                let reg_val = self.registers[(op - 0x10) as usize];
+                let reg_val = reg_val.wrapping_add(next_word);
+                &mut self.ram[reg_val as usize]
+            }
+            0x18 => {
+                self.sp -= 1;
+                &mut self.ram[self.sp as usize]
+            }
             _ => {
                 todo!("exhaust")
             }
