@@ -10,19 +10,19 @@ impl DCPU {
     }
 
     pub fn dcpu_add(&mut self, a: u16, b: u16) {
-        let val_a = self.get_src(a);
-        let val_b = *self.get_dst(b);
-        let (res, overflow) = val_b.overflowing_add(val_a);
-        *self.get_dst(b) = res;
-        self.ex = if overflow { 0x0001 } else { 0x0000 };
+        let val_a = self.get_src(a) as u32;
+        let val_b = *self.get_dst(b) as u32;
+        let res = val_b + val_a;
+        *self.get_dst(b) = res as u16;
+        self.ex = if res > 0xFFFF { 0x0001 } else { 0x0000 };
     }
 
     pub fn dcpu_sub(&mut self, a: u16, b: u16) {
-        let val_a = self.get_src(a);
-        let val_b = *self.get_dst(b);
-        let (res, underflow) = val_b.overflowing_sub(val_a);
-        *self.get_dst(b) = res;
-        self.ex = if underflow { 0xFFFF } else { 0x0000 };
+        let val_a = self.get_src(a) as i32;
+        let val_b = *self.get_dst(b) as i32;
+        let res = val_b - val_a;
+        *self.get_dst(b) = res as u16;
+        self.ex = if res < 0 { 0xFFFF } else { 0x0000 };
     }
 
     pub fn dcpu_mul(&mut self, a: u16, b: u16) {
