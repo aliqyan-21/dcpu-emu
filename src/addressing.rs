@@ -13,6 +13,7 @@ impl DCPU {
                 self.pc = self.pc.wrapping_add(1);
                 let reg_val = self.registers[(op - 0x10) as usize];
                 let reg_val = reg_val.wrapping_add(next_word);
+                self.cycles += 1;
                 self.ram[reg_val as usize]
             }
             0x18 => {
@@ -24,6 +25,7 @@ impl DCPU {
             0x1a => {
                 let next_word = self.ram[self.pc as usize];
                 self.pc = self.pc.wrapping_add(1);
+                self.cycles += 1;
                 self.ram[self.sp.wrapping_add(next_word) as usize]
             }
             0x1b => self.sp,
@@ -32,14 +34,16 @@ impl DCPU {
             0x1e => {
                 let next_word = self.ram[self.pc as usize];
                 self.pc = self.pc.wrapping_add(1);
+                self.cycles += 1;
                 self.ram[next_word as usize]
             }
             0x1f => {
                 let next_word = self.ram[self.pc as usize];
                 self.pc = self.pc.wrapping_add(1);
+                self.cycles += 1;
                 next_word
             }
-            0x20..=0x3f => (op as i32 - 0x21) as u16,
+            0x20..=0x3f => (op as i32 - 0x20) as u16,
             _ => {
                 panic!("no such addressing exist: {}", op);
             }
@@ -58,6 +62,7 @@ impl DCPU {
                 self.pc = self.pc.wrapping_add(1);
                 let reg_val = self.registers[(op - 0x10) as usize];
                 let reg_val = reg_val.wrapping_add(next_word);
+                self.cycles += 1;
                 &mut self.ram[reg_val as usize]
             }
             0x18 => {
@@ -68,6 +73,7 @@ impl DCPU {
             0x1a => {
                 let next_word = self.ram[self.pc as usize];
                 self.pc = self.pc.wrapping_add(1);
+                self.cycles += 1;
                 &mut self.ram[self.sp.wrapping_add(next_word) as usize]
             }
             0x1b => &mut self.sp,
@@ -76,10 +82,10 @@ impl DCPU {
             0x1e => {
                 let next_word = self.ram[self.pc as usize];
                 self.pc = self.pc.wrapping_add(1);
+                self.cycles += 1;
                 &mut self.ram[next_word as usize]
             }
             0x1f => {
-                self.pc = self.pc.wrapping_add(1);
                 panic!("cannot use literal as dst");
             }
             0x20..=0x3f => panic!("cannot use literal as dst"),

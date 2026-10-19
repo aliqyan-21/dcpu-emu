@@ -10,6 +10,7 @@ pub struct DCPU {
     pub ex: u16,             // extra/excess
     pub ia: u16,             // interrupt address
     pub iaq: bool,           // interrupt queue
+    pub cycles: u64,
 }
 
 const START_ADDRESS: u16 = 0x0000;
@@ -24,6 +25,7 @@ impl DCPU {
             ex: 0,
             ia: 0,
             iaq: false,
+            cycles: 0,
         }
     }
 
@@ -40,6 +42,7 @@ impl DCPU {
             "PC: 0x{:04x}  SP: 0x{:04x}  EX: 0x{:04x}  IA: 0x{:04x}",
             self.pc, self.sp, self.ex, self.ia
         );
+        println!("cycles: {}", self.cycles);
     }
 
     fn load_program(path: String) -> Vec<u16> {

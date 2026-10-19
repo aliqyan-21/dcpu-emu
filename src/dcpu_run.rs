@@ -49,7 +49,7 @@ impl DCPU {
                 0x04 => self.dcpu_mul(a, b),
                 0x05 => self.dcpu_mli(a, b),
                 0x06 => self.dcpu_div(a, b),
-                0x07 => self.dcpu_divi(a, b),
+                0x07 => self.dcpu_dvi(a, b),
                 0x08 => self.dcpu_mod(a, b),
                 0x09 => self.dcpu_mdi(a, b),
                 0x0a => self.dcpu_and(a, b),
