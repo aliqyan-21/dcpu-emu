@@ -49,4 +49,16 @@ impl DCPU {
     pub fn dcpu_iaq(&mut self, a: u16) {
         self.iaq = self.get_src(a) != 0;
     }
+
+    pub fn dcpu_hwn(&mut self, _a: u16) {
+        todo!("HWN");
+    }
+
+    pub fn dcpu_hwq(&mut self, _a: u16) {
+        todo!("HWQ");
+    }
+
+    pub fn dcpu_hwi(&mut self, _a: u16) {
+        todo!("HWI");
+    }
 }

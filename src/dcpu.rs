@@ -23,6 +23,7 @@ impl DCPU {
             sp: 0,
             ex: 0,
             ia: 0,
+            iaq: false,
         }
     }
 

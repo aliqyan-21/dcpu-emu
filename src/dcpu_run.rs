@@ -37,6 +37,9 @@ impl DCPU {
                         0x0a => self.dcpu_ias(a),
                         0x0b => self.dcpu_rfi(),
                         0x0c => self.dcpu_iaq(a),
+                        0x10 => self.dcpu_hwn(a),
+                        0x11 => self.dcpu_hwq(a),
+                        0x12 => self.dcpu_hwi(a),
                         _ => {}
                     }
                 }
