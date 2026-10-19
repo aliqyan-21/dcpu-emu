@@ -128,9 +128,31 @@ impl DCPU {
         self.ex = ((((val_b as u32) << val_a) >> 16) & 0xffff) as u16;
     }
 
-    // pub fn dcpu_ifb(&mut self, a: u16, b: u16) {
-    //     let val_a = self.get_src(a);
-    //     let val_b = *self.get_dst(b);
-    //     // ...
-    // }
+    fn skip_routine(&mut self) {
+        let instr = self.ram[self.pc as usize];
+        self.pc = self.pc.wrapping_add(1);
+        let (_op, a, b) = DCPU::decode(instr);
+        if matches!(a, 0x10..=0x17 | 0x1a | 0x1e | 0x1f) {
+            self.pc = self.pc.wrapping_add(1);
+        }
+        if matches!(b, 0x10..=0x17 | 0x1a | 0x1e | 0x1f) {
+            self.pc = self.pc.wrapping_add(1);
+        }
+    }
+
+    pub fn dcpu_ifb(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        if val_b & val_a == 0 {
+            self.skip_routine();
+        }
+    }
+
+    pub fn dcpu_ifc(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        if val_b & val_a != 0 {
+            self.skip_routine();
+        }
+    }
 }

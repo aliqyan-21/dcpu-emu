@@ -14,10 +14,6 @@ impl DCPU {
 
 
     pub fn dcpu_run(&mut self) {
-        // self.registers[1] = u16::MAX;
-        // self.registers[2] = u16::MAX;
-        self.registers[1] = 0;
-        self.registers[2] = 3;
         loop {
             // fetch
             let inst = self.ram[self.pc as usize];
@@ -51,6 +47,8 @@ impl DCPU {
                 0x0d => self.dcpu_shr(a, b),
                 0x0e => self.dcpu_asr(a, b),
                 0x0f => self.dcpu_shl(a, b),
+                0x10 => self.dcpu_ifb(a, b),
+                0x11 => self.dcpu_ifc(a, b),
                 // todo: and so on...implement more instructions
                 _ => {}
             }
