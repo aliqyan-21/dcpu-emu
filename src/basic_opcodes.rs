@@ -175,7 +175,7 @@ impl DCPU {
     pub fn dcpu_ifg(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a);
         let val_b = *self.get_dst(b);
-        if val_b < val_a {
+        if val_b <= val_a {
             self.skip_routine();
         }
     }
@@ -183,7 +183,7 @@ impl DCPU {
     pub fn dcpu_ifa(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a) as i16 as i32;
         let val_b = *self.get_dst(b) as i16 as i32;
-        if val_b < val_a {
+        if val_b <= val_a {
             self.skip_routine();
         }
     }
@@ -191,7 +191,7 @@ impl DCPU {
     pub fn dcpu_ifl(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a);
         let val_b = *self.get_dst(b);
-        if val_b > val_a {
+        if val_b >= val_a {
             self.skip_routine();
         }
     }
@@ -199,7 +199,7 @@ impl DCPU {
     pub fn dcpu_ifu(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a) as i16 as i32;
         let val_b = *self.get_dst(b) as i16 as i32;
-        if val_b > val_a {
+        if val_b >= val_a {
             self.skip_routine();
         }
     }
