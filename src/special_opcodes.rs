@@ -37,4 +37,16 @@ impl DCPU {
     pub fn dcpu_ias(&mut self, a: u16) {
         self.ia = self.get_src(a);
     }
+
+    pub fn dcpu_rfi(&mut self) {
+        self.iaq = false;
+        self.registers[0] = self.ram[self.sp as usize];
+        self.sp = self.sp.wrapping_add(1);
+        self.pc = self.ram[self.sp as usize];
+        self.sp = self.sp.wrapping_add(1);
+    }
+
+    pub fn dcpu_iaq(&mut self, a: u16) {
+        self.iaq = self.get_src(a) != 0;
+    }
 }
