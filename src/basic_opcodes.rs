@@ -5,6 +5,10 @@ implementation of all basic opcodes there is in DCPU-16
 use crate::dcpu::DCPU;
 
 impl DCPU {
+    pub fn dcpu_set(&mut self, a: u16, b: u16) {
+        *self.get_dst(b) = self.get_src(a);
+    }
+
     pub fn dcpu_add(&mut self, a: u16, b: u16) {
         let val_a = self.get_src(a);
         let val_b = *self.get_dst(b);
@@ -116,4 +120,17 @@ impl DCPU {
         *self.get_dst(b) = (val_b >> val_a) as u16;
         self.ex = ((((val_b as i32) << 16) >> val_a) as u32 & 0xffff) as u16;
     }
+
+    pub fn dcpu_shl(&mut self, a: u16, b: u16) {
+        let val_a = (self.get_src(a) as u32).min(16);
+        let val_b = *self.get_dst(b) as u32;
+        *self.get_dst(b) = (val_b << val_a) as u16;
+        self.ex = ((((val_b as u32) << val_a) >> 16) & 0xffff) as u16;
+    }
+
+    // pub fn dcpu_ifb(&mut self, a: u16, b: u16) {
+    //     let val_a = self.get_src(a);
+    //     let val_b = *self.get_dst(b);
+    //     // ...
+    // }
 }

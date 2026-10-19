@@ -12,29 +12,12 @@ impl DCPU {
         (opcode, a, b)
     }
 
-    pub fn get_src(&mut self, op: u16) -> u16 {
-        match op {
-            0x00..=0x07 => self.registers[op as usize],
-            _ => {
-                todo!("exhaust")
-            }
-        }
-    }
-
-    pub fn get_dst(&mut self, op: u16) -> &mut u16 {
-        match op {
-            0x00..=0x07 => return &mut self.registers[op as usize],
-            _ => {
-                todo!("exhaust")
-            }
-        }
-    }
 
     pub fn dcpu_run(&mut self) {
-        self.registers[1] = u16::MAX;
-        self.registers[2] = u16::MAX;
-        // self.registers[1] = 0;
-        // self.registers[2] = 3;
+        // self.registers[1] = u16::MAX;
+        // self.registers[2] = u16::MAX;
+        self.registers[1] = 0;
+        self.registers[2] = 3;
         loop {
             // fetch
             let inst = self.ram[self.pc as usize];
@@ -53,7 +36,7 @@ impl DCPU {
                 0x00 => {
                     todo!("special instruction")
                 }
-                0x01 => *self.get_dst(b) = self.get_src(a),
+                0x01 => self.dcpu_set(a, b),
                 0x02 => self.dcpu_add(a, b),
                 0x03 => self.dcpu_sub(a, b),
                 0x04 => self.dcpu_mul(a, b),
@@ -67,6 +50,7 @@ impl DCPU {
                 0x0c => self.dcpu_xor(a, b),
                 0x0d => self.dcpu_shr(a, b),
                 0x0e => self.dcpu_asr(a, b),
+                0x0f => self.dcpu_shl(a, b),
                 // todo: and so on...implement more instructions
                 _ => {}
             }
