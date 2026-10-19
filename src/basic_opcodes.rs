@@ -219,4 +219,16 @@ impl DCPU {
         *self.get_dst(b) = res as u16;
         self.ex = if res < 0 { 0xFFFF } else { 0x0000 };
     }
+
+    pub fn dcpu_sti(&mut self, a: u16, b: u16) {
+        self.dcpu_set(a, b);
+        self.registers[6] = self.registers[6].wrapping_add(1);
+        self.registers[7] = self.registers[7].wrapping_add(1)
+    }
+
+    pub fn dcpu_std(&mut self, a: u16, b: u16) {
+        self.dcpu_set(a, b);
+        self.registers[6] = self.registers[6].wrapping_sub(1);
+        self.registers[7] = self.registers[7].wrapping_sub(1);
+    }
 }

@@ -56,6 +56,8 @@ impl DCPU {
                 0x17 => self.dcpu_ifu(a, b),
                 0x1a => self.dcpu_adx(a, b),
                 0x1b => self.dcpu_sbx(a, b),
+                0x1e => self.dcpu_sti(a, b),
+                0x1f => self.dcpu_std(a, b),
                 // todo: and so on...implement more instructions
                 _ => {}
             }
