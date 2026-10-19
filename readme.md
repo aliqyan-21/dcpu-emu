@@ -23,3 +23,9 @@ git clone https://github.com/aliqyan-21/dcpu-emu
 cd dcpu-emu
 cargo run
 ```
+
+### License
+[MIT](license.md)
+
+### References
+[dcpu spec](https://gist.github.com/metaphox/3888117)
