@@ -4,6 +4,7 @@ mod addressing;
 mod basic_opcodes;
 mod dcpu;
 mod dcpu_run;
+mod special_opcodes;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

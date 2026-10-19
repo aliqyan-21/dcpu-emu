@@ -29,7 +29,13 @@ impl DCPU {
             // execute
             match opcode {
                 0x00 => {
-                    todo!("special instruction")
+                    // opcode 0 hoga, b opcode hoga
+                    match b {
+                        0x01 => self.dcpu_jsr(a),
+                        0x08 => self.dcpu_int(a),
+                        0x08 => self.dcpu_iag(a),
+                        _ => {}
+                    }
                 }
                 0x01 => self.dcpu_set(a, b),
                 0x02 => self.dcpu_add(a, b),
@@ -58,8 +64,9 @@ impl DCPU {
                 0x1b => self.dcpu_sbx(a, b),
                 0x1e => self.dcpu_sti(a, b),
                 0x1f => self.dcpu_std(a, b),
-                // todo: and so on...implement more instructions
-                _ => {}
+                _ => {
+                    panic!("opcode not suppoorted: {}", opcode);
+                }
             }
             self.print_state();
         }

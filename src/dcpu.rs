@@ -9,6 +9,7 @@ pub struct DCPU {
     pub sp: u16,             // stack pointer
     pub ex: u16,             // extra/excess
     pub ia: u16,             // interrupt address
+    pub iaq: bool,           // interrupt queue
 }
 
 const START_ADDRESS: u16 = 0x0000;
