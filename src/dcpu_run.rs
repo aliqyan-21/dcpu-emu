@@ -12,7 +12,6 @@ impl DCPU {
         (opcode, a, b)
     }
 
-
     pub fn dcpu_run(&mut self) {
         loop {
             // fetch
@@ -49,6 +48,14 @@ impl DCPU {
                 0x0f => self.dcpu_shl(a, b),
                 0x10 => self.dcpu_ifb(a, b),
                 0x11 => self.dcpu_ifc(a, b),
+                0x12 => self.dcpu_ife(a, b),
+                0x13 => self.dcpu_ifn(a, b),
+                0x14 => self.dcpu_ifg(a, b),
+                0x15 => self.dcpu_ifa(a, b),
+                0x16 => self.dcpu_ifl(a, b),
+                0x17 => self.dcpu_ifu(a, b),
+                0x1a => self.dcpu_adx(a, b),
+                0x1b => self.dcpu_sbx(a, b),
                 // todo: and so on...implement more instructions
                 _ => {}
             }

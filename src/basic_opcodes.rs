@@ -155,4 +155,68 @@ impl DCPU {
             self.skip_routine();
         }
     }
+
+    pub fn dcpu_ife(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        if val_b != val_a {
+            self.skip_routine();
+        }
+    }
+
+    pub fn dcpu_ifn(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        if val_b == val_a {
+            self.skip_routine();
+        }
+    }
+
+    pub fn dcpu_ifg(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        if val_b < val_a {
+            self.skip_routine();
+        }
+    }
+
+    pub fn dcpu_ifa(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a) as i16 as i32;
+        let val_b = *self.get_dst(b) as i16 as i32;
+        if val_b < val_a {
+            self.skip_routine();
+        }
+    }
+
+    pub fn dcpu_ifl(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a);
+        let val_b = *self.get_dst(b);
+        if val_b > val_a {
+            self.skip_routine();
+        }
+    }
+
+    pub fn dcpu_ifu(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a) as i16 as i32;
+        let val_b = *self.get_dst(b) as i16 as i32;
+        if val_b > val_a {
+            self.skip_routine();
+        }
+    }
+
+    pub fn dcpu_adx(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a) as u32;
+        let val_b = *self.get_dst(b) as u32;
+        let res = val_b + val_a + self.ex as u32;
+        *self.get_dst(b) = res as u16;
+        self.ex = if res > 0xFFFF { 0x0001 } else { 0x0000 };
+    }
+
+    pub fn dcpu_sbx(&mut self, a: u16, b: u16) {
+        let val_a = self.get_src(a) as i32;
+        let val_b = *self.get_dst(b) as i32;
+        let res = val_b - val_a + self.ex as i32;
+        *self.get_dst(b) = res as u16;
+        self.ex = if res < 0 { 0xFFFF } else { 0x0000 };
+    }
 }
