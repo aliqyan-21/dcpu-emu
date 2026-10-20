@@ -9,9 +9,10 @@ fn main() {
         std::process::exit(1);
     }
 
-    let tokens = crate::assembler::lexer::tokenize(args[1].clone());
+    let mut asmblr = assembler::assembler::Assembler::new();
+    asmblr.tokenize(args[1].clone());
 
-    for mut t in tokens {
+    for mut t in asmblr.tokens {
         t.print();
     }
 

@@ -1,23 +1,41 @@
+#[rustfmt::skip]
+#[derive(Debug)]
+pub enum Opcode {
+    Set, Add, Sub, Mul, Mli, Div, Dvi, Mod, Mdi,
+    And, Bor, Xor, Shr, Asr, Shl, Ifb, Ifc, Ife,
+    Ifn, Ifg, Ifa, Ifl, Ifu, Adx, Sbx, Sti, Std,
+    Jsr, Int, Iag, Ias, Rfi, Iaq, Hwn, Hwq, Hwi,
+}
+
+#[rustfmt::skip]
+#[derive(Debug)]
+pub enum Register {
+    A, B, C, X, Y, Z, I, J, Sp, Pc, Ex,
+}
+
 #[derive(Debug)]
 pub enum TokenType {
-    Cmd,
-    Hex,
-    MemPtr,
-    Literal,
-    Label,
+    Opcode(Opcode),
+    Register(Register),
+    Hex(String),
+    Literal(String),
+    Label(String),
+    MemPtr(String),
+    Jmp(String),
+    KW(String),
+    Ident(String),
 }
 
 pub struct Token {
     t_type: TokenType,
-    value: String,
 }
 
 impl Token {
-    pub fn new(t_type: TokenType, value: String) -> Self {
-        Self { t_type, value }
+    pub fn new(t_type: TokenType) -> Self {
+        Self { t_type }
     }
 
     pub fn print(&mut self) {
-        println!("{:?}  : {}", self.t_type, self.value);
+        println!("{:?}", self.t_type);
     }
 }
