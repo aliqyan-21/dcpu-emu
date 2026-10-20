@@ -9,7 +9,11 @@ fn main() {
         std::process::exit(1);
     }
 
-    crate::assembler::lexer::tokenize(args[1].clone());
+    let tokens = crate::assembler::lexer::tokenize(args[1].clone());
+
+    for mut t in tokens {
+        t.print();
+    }
 
     // let mut dcpu = dcpu::dcpu::DCPU::new();
     // println!("DCPU initialized successfully!");
