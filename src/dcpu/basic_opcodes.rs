@@ -2,7 +2,7 @@
 implementation of all basic opcodes there is in DCPU-16
 */
 
-use crate::dcpu::DCPU;
+use crate::dcpu::dcpu::DCPU;
 
 impl DCPU {
     pub fn dcpu_set(&mut self, a: u16, b: u16) {

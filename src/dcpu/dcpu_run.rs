@@ -2,7 +2,7 @@
 implemenation of dcpu_run
 */
 
-use crate::dcpu::DCPU;
+use crate::dcpu::dcpu::DCPU;
 
 impl DCPU {
     pub fn decode(inst: u16) -> (u16, u16, u16) {

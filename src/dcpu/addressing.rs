@@ -1,4 +1,4 @@
-use crate::dcpu::DCPU;
+pub use crate::dcpu::dcpu::DCPU;
 
 impl DCPU {
     pub fn get_src(&mut self, op: u16) -> u16 {
