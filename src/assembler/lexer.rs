@@ -3,14 +3,15 @@ use super::token::*;
 use super::utils::*;
 
 impl Assembler {
-    pub fn assemble(&mut self, path: String) {
+    pub fn tokenize(&mut self, path: String) {
         let asm = read_asm(path);
         self.collect_labels(&asm);
-        self.tokenize(&asm);
+        self.tokenize_lines(&asm);
     }
 
-    fn tokenize(&mut self, asm: &Vec<String>) {
-        for line in asm {
+    fn tokenize_lines(&mut self, asm: &Vec<String>) {
+        for (n, line) in asm.iter().enumerate() {
+            let line = normalize(line);
             for word in line.split_whitespace() {
                 let c = word.chars().nth(0).unwrap();
                 let cc = if word.len() > 1 {
@@ -19,23 +20,23 @@ impl Assembler {
                     '0'
                 };
                 if c == ':' {
-                    let token = self.read_label(word);
+                    let token = self.read_label(word, n + 1);
                     self.tokens.push(token);
                 } else if c.is_alphabetic() {
-                    let token = self.read_identifier(word);
+                    let token = self.read_identifier(word, n + 1);
                     self.tokens.push(token);
                 } else if c == '[' {
-                    let token = self.read_memory_pointer(word);
+                    let token = self.read_memory_pointer(word, n + 1);
                     self.tokens.push(token);
                 } else if c == '0' && cc == 'x' {
                     if let Some(cc) = word.chars().nth(1) {
                         if cc == 'x' {
-                            let token = self.read_hex_literal(word);
+                            let token = self.read_hex_literal(word, n + 1);
                             self.tokens.push(token);
                         }
                     }
                 } else if c.is_numeric() {
-                    let token = self.read_literal(word);
+                    let token = self.read_literal(word, n + 1);
                     self.tokens.push(token);
                 }
             }
@@ -54,28 +55,28 @@ impl Assembler {
     }
 
     // 0x00fa
-    fn read_hex_literal(&mut self, word: &str) -> Token {
+    fn read_hex_literal(&mut self, word: &str, n: usize) -> Token {
         let word = u16::from_str_radix(word.strip_prefix("0x").unwrap_or(&word), 16)
             .expect("street fighter in lexer");
-        Token::new(TokenType::Hex(word))
+        Token::new(TokenType::Hex(word), n)
     }
 
     // 0 - 31
-    fn read_literal(&mut self, word: &str) -> Token {
+    fn read_literal(&mut self, word: &str, n: usize) -> Token {
         let word = u16::from_str_radix(word.strip_prefix("0x").unwrap_or(&word), 10)
             .expect("street fighter in lexer");
-        Token::new(TokenType::Literal(word))
+        Token::new(TokenType::Literal(word), n)
     }
 
     // :end
-    fn read_label(&mut self, word: &str) -> Token {
+    fn read_label(&mut self, word: &str, n: usize) -> Token {
         self.labels
             .insert(word.strip_prefix(":").unwrap().to_string(), 100);
-        Token::new(TokenType::Label(word.to_string()))
+        Token::new(TokenType::Label(word.to_string()), n)
     }
 
     // [0xfa01]
-    fn read_memory_pointer(&mut self, word: &str) -> Token {
+    fn read_memory_pointer(&mut self, word: &str, n: usize) -> Token {
         let word = word
             .strip_prefix("[")
             .unwrap()
@@ -84,13 +85,13 @@ impl Assembler {
             .to_string();
         let word = u16::from_str_radix(word.strip_prefix("0x").unwrap_or(&word), 16)
             .expect("street fighter in lexer");
-        Token::new(TokenType::MemPtr(word))
+        Token::new(TokenType::MemPtr(word), n)
     }
 
     // a, b, loop, sum, add
-    fn read_identifier(&mut self, word: &str) -> Token {
+    fn read_identifier(&mut self, word: &str, n: usize) -> Token {
         if self.labels.contains_key(word) {
-            Token::new(TokenType::Jmp(word.to_string()))
+            Token::new(TokenType::Jmp(word.to_string()), n)
         } else if self.is_register(&word) {
             let reg = match word {
                 "a" => Register::A,
@@ -106,7 +107,7 @@ impl Assembler {
                 "ex" => Register::Ex,
                 _ => unreachable!(),
             };
-            Token::new(TokenType::Register(reg))
+            Token::new(TokenType::Register(reg), n)
         } else if self.is_opcode(&word) {
             let op = match word {
                 "set" => Opcode::Set,
@@ -147,9 +148,9 @@ impl Assembler {
                 "hwi" => Opcode::Hwi,
                 _ => unreachable!(),
             };
-            Token::new(TokenType::Opcode(op))
+            Token::new(TokenType::Opcode(op), n)
         } else {
-            Token::new(TokenType::Ident(word.to_string()))
+            Token::new(TokenType::Ident(word.to_string()), n)
         }
     }
 }

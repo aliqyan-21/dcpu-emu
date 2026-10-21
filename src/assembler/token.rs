@@ -28,14 +28,15 @@ pub enum TokenType {
 
 pub struct Token {
     t_type: TokenType,
+    line: usize,
 }
 
 impl Token {
-    pub fn new(t_type: TokenType) -> Self {
-        Self { t_type }
+    pub fn new(t_type: TokenType, line: usize) -> Self {
+        Self { t_type, line }
     }
 
     pub fn print(&mut self) {
-        println!("{:?}", self.t_type);
+        println!("{} -> {:?}", self.line, self.t_type);
     }
 }
