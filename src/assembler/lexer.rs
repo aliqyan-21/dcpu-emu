@@ -3,8 +3,13 @@ use super::token::*;
 use super::utils::*;
 
 impl Assembler {
-    pub fn tokenize(&mut self, path: String) {
+    pub fn assemble(&mut self, path: String) {
         let asm = read_asm(path);
+        self.collect_labels(&asm);
+        self.tokenize(&asm);
+    }
+
+    fn tokenize(&mut self, asm: &Vec<String>) {
         for line in asm {
             for word in line.split_whitespace() {
                 let c = word.chars().nth(0).unwrap();
@@ -32,6 +37,17 @@ impl Assembler {
                 } else if c.is_numeric() {
                     let token = self.read_literal(word);
                     self.tokens.push(token);
+                }
+            }
+        }
+    }
+
+    fn collect_labels(&mut self, asm: &Vec<String>) {
+        for line in asm.iter() {
+            for word in line.split_whitespace() {
+                if word.starts_with(":") {
+                    self.labels
+                        .insert(word.strip_prefix(":").unwrap().to_string(), 100);
                 }
             }
         }

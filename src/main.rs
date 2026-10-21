@@ -10,7 +10,7 @@ fn main() {
     }
 
     let mut asmblr = assembler::assembler::Assembler::new();
-    asmblr.tokenize(args[1].clone());
+    asmblr.assemble(args[1].clone());
 
     for mut t in asmblr.tokens {
         t.print();
