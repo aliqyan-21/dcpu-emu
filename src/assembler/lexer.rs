@@ -55,12 +55,16 @@ impl Assembler {
 
     // 0x00fa
     fn read_hex_literal(&mut self, word: &str) -> Token {
-        Token::new(TokenType::Hex(word.to_string()))
+        let word = u16::from_str_radix(word.strip_prefix("0x").unwrap_or(&word), 16)
+            .expect("street fighter in lexer");
+        Token::new(TokenType::Hex(word))
     }
 
     // 0 - 31
     fn read_literal(&mut self, word: &str) -> Token {
-        Token::new(TokenType::Literal(word.to_string()))
+        let word = u16::from_str_radix(word.strip_prefix("0x").unwrap_or(&word), 10)
+            .expect("street fighter in lexer");
+        Token::new(TokenType::Literal(word))
     }
 
     // :end
@@ -78,17 +82,17 @@ impl Assembler {
             .strip_suffix("]")
             .unwrap()
             .to_string();
+        let word = u16::from_str_radix(word.strip_prefix("0x").unwrap_or(&word), 16)
+            .expect("street fighter in lexer");
         Token::new(TokenType::MemPtr(word))
     }
 
     // a, b, loop, sum, add
     fn read_identifier(&mut self, word: &str) -> Token {
-        let lower = word.to_lowercase();
-
         if self.labels.contains_key(word) {
             Token::new(TokenType::Jmp(word.to_string()))
-        } else if self.is_register(&lower) {
-            let reg = match lower.as_str() {
+        } else if self.is_register(&word) {
+            let reg = match word {
                 "a" => Register::A,
                 "b" => Register::B,
                 "c" => Register::C,
@@ -103,8 +107,8 @@ impl Assembler {
                 _ => unreachable!(),
             };
             Token::new(TokenType::Register(reg))
-        } else if self.is_opcode(&lower) {
-            let op = match lower.as_str() {
+        } else if self.is_opcode(&word) {
+            let op = match word {
                 "set" => Opcode::Set,
                 "add" => Opcode::Add,
                 "sub" => Opcode::Sub,

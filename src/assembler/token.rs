@@ -17,12 +17,12 @@ pub enum Register {
 pub enum TokenType {
     Opcode(Opcode),
     Register(Register),
-    Hex(String),
-    Literal(String),
+    Hex(u16),
+    Literal(u16),
     Label(String),
-    MemPtr(String),
+    MemPtr(u16),
     Jmp(String),
-    KW(String),
+    //todo: .dat and string
     Ident(String),
 }
 
