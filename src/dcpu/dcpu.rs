@@ -68,15 +68,16 @@ impl DCPU {
     }
 
     /* load instructions encoded from asm file */
-    pub fn load_instructions(&mut self, path: &str) {
+    pub fn load_instructions(&mut self, path: &str) -> Result<(), String> {
         let mut asmblr = assembler::Assembler::new();
-        asmblr.tokenize(path.to_string());
-        asmblr.parse();
+        asmblr.tokenize(path.to_string())?;
+        asmblr.parse()?;
         asmblr.encode();
         println!("\nInstructions to be executed:");
         for (i, inst) in asmblr.machine_code.iter().enumerate() {
             println!("{:04x}", inst);
             self.ram[START_ADDRESS as usize + i] = *inst;
         }
+        Ok(())
     }
 }

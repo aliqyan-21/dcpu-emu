@@ -34,9 +34,12 @@ fn main() {
 
     let mut dcpu = dcpu::dcpu::DCPU::new();
     println!("DCPU initialized successfully!");
-    dcpu.load_instructions(&args[1]);
+    if let Err(e) = dcpu.load_instructions(&args[1]) {
+        eprintln!("[Assembler Error] {}", e);
+        std::process::exit(1);
+    }
     if let Err(e) = dcpu.dcpu_run() {
-        eprintln!("\n[DCPU Error] {}\n", e);
+        eprintln!("[DCPU Error] {}", e);
         std::process::exit(1);
     }
 }

@@ -16,7 +16,7 @@ pub enum TokenType {
 #[derive(Clone)]
 pub struct Token {
     t_type: TokenType,
-    line: usize,
+    pub line: usize,
 }
 
 impl Token {

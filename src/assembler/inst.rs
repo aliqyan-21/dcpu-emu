@@ -134,9 +134,7 @@ impl Operand {
             Operand::Literal(l) => (0x1f, Some(*l)),
             Operand::MemPtr(m) => (0x1e, Some(*m)),
             Operand::Jmp(label_name) => {
-                let addr = *labels
-                    .get(label_name)
-                    .unwrap_or_else(|| panic!("Undefined label: {}", label_name));
+                let addr = *labels.get(label_name).expect("Hmm...");
                 (0x1f, Some(addr as u16))
             }
         }

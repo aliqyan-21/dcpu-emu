@@ -4,13 +4,14 @@ use super::token::*;
 use super::utils::*;
 
 impl Assembler {
-    pub fn tokenize(&mut self, path: String) {
+    pub fn tokenize(&mut self, path: String) -> Result<(), String> {
         let asm = read_asm(path);
         self.collect_labels(&asm);
-        self.tokenize_lines(&asm);
+        self.tokenize_lines(&asm)?;
+        Ok(())
     }
 
-    fn tokenize_lines(&mut self, asm: &Vec<String>) {
+    fn tokenize_lines(&mut self, asm: &Vec<String>) -> Result<(), String> {
         for (n, line) in asm.iter().enumerate() {
             let line = normalize(line);
             // println!("{line}");
@@ -40,9 +41,12 @@ impl Assembler {
                 } else if c.is_numeric() {
                     let token = self.read_literal(word, n + 1);
                     self.tokens.push(token);
+                } else {
+                    return Err(format!("Unknown symbol: '{}' at line  {}", word, n + 1));
                 }
             }
         }
+        Ok(())
     }
 
     fn collect_labels(&mut self, asm: &Vec<String>) {
