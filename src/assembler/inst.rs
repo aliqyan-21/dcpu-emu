@@ -50,6 +50,47 @@ impl Opcode {
             Opcode::Hwi => "hwi",
         }
     }
+
+    pub fn code(&self) -> u16 {
+        match self {
+            Opcode::Set => 0x01,
+            Opcode::Add => 0x02,
+            Opcode::Sub => 0x03,
+            Opcode::Mul => 0x04,
+            Opcode::Mli => 0x05,
+            Opcode::Div => 0x06,
+            Opcode::Dvi => 0x07,
+            Opcode::Mod => 0x08,
+            Opcode::Mdi => 0x09,
+            Opcode::And => 0x0a,
+            Opcode::Bor => 0x0b,
+            Opcode::Xor => 0x0c,
+            Opcode::Shr => 0x0d,
+            Opcode::Asr => 0x0e,
+            Opcode::Shl => 0x0f,
+            Opcode::Ifb => 0x10,
+            Opcode::Ifc => 0x11,
+            Opcode::Ife => 0x12,
+            Opcode::Ifn => 0x13,
+            Opcode::Ifg => 0x14,
+            Opcode::Ifa => 0x15,
+            Opcode::Ifl => 0x16,
+            Opcode::Ifu => 0x17,
+            Opcode::Adx => 0x1a,
+            Opcode::Sbx => 0x1b,
+            Opcode::Sti => 0x1e,
+            Opcode::Std => 0x1f,
+            Opcode::Jsr => 0x01,
+            Opcode::Int => 0x08,
+            Opcode::Iag => 0x09,
+            Opcode::Ias => 0x0a,
+            Opcode::Rfi => 0x0b,
+            Opcode::Iaq => 0x0c,
+            Opcode::Hwn => 0x10,
+            Opcode::Hwq => 0x11,
+            Opcode::Hwi => 0x12,
+        }
+    }
 }
 
 #[rustfmt::skip]
@@ -122,49 +163,6 @@ impl Instruction {
             opcode,
             operand1,
             operand2,
-        }
-    }
-}
-
-impl Opcode {
-    pub fn code(&self) -> u16 {
-        match self {
-            Opcode::Set => 0x01,
-            Opcode::Add => 0x02,
-            Opcode::Sub => 0x03,
-            Opcode::Mul => 0x04,
-            Opcode::Mli => 0x05,
-            Opcode::Div => 0x06,
-            Opcode::Dvi => 0x07,
-            Opcode::Mod => 0x08,
-            Opcode::Mdi => 0x09,
-            Opcode::And => 0x0a,
-            Opcode::Bor => 0x0b,
-            Opcode::Xor => 0x0c,
-            Opcode::Shr => 0x0d,
-            Opcode::Asr => 0x0e,
-            Opcode::Shl => 0x0f,
-            Opcode::Ifb => 0x10,
-            Opcode::Ifc => 0x11,
-            Opcode::Ife => 0x12,
-            Opcode::Ifn => 0x13,
-            Opcode::Ifg => 0x14,
-            Opcode::Ifa => 0x15,
-            Opcode::Ifl => 0x16,
-            Opcode::Ifu => 0x17,
-            Opcode::Adx => 0x1a,
-            Opcode::Sbx => 0x1b,
-            Opcode::Sti => 0x1e,
-            Opcode::Std => 0x1f,
-            Opcode::Jsr => 0x01,
-            Opcode::Int => 0x08,
-            Opcode::Iag => 0x09,
-            Opcode::Ias => 0x0a,
-            Opcode::Rfi => 0x0b,
-            Opcode::Iaq => 0x0c,
-            Opcode::Hwn => 0x10,
-            Opcode::Hwq => 0x11,
-            Opcode::Hwi => 0x12,
         }
     }
 }

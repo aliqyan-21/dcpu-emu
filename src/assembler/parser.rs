@@ -2,8 +2,6 @@ use super::assembler::*;
 use super::inst::*;
 use super::token::*;
 
-// note: hex instruction will be formed like this (a << 10) | (b << 5) | op
-
 impl Assembler {
     pub fn parse(&mut self) {
         let mut inst_idx: usize = 0;

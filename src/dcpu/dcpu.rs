@@ -7,7 +7,7 @@ use super::super::assembler::*;
 pub struct DCPU {
     pub ram: [u16; 0x10000], // 128 KB ram
     pub registers: [u16; 8], // A B C X Y Z I J
-    pub pc: u16,             //  program counter
+    pub pc: u16,             // program counter
     pub sp: u16,             // stack pointer
     pub ex: u16,             // extra/excess
     pub ia: u16,             // interrupt address

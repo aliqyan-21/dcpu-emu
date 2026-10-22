@@ -32,9 +32,10 @@ impl DCPU {
         self.cycles += 4;
     }
 
-    pub fn dcpu_iag(&mut self, a: u16) {
-        *self.get_dst(a) = self.ia;
+    pub fn dcpu_iag(&mut self, a: u16) -> Result<(), String> {
+        *self.get_dst(a)? = self.ia;
         self.cycles += 1;
+        Ok(())
     }
 
     pub fn dcpu_ias(&mut self, a: u16) {

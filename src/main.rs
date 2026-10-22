@@ -9,6 +9,10 @@ fn main() {
         std::process::exit(1);
     }
 
+    // --asm file.s // take assembly file gen rom and run in dcpu
+    // --rom file.rom // take rom file and run dcpu
+    // --emit-rom file.s // take assembly generate rom
+
     // let mut asmblr = assembler::assembler::Assembler::new();
     // asmblr.tokenize(args[1].clone());
 
@@ -31,5 +35,8 @@ fn main() {
     let mut dcpu = dcpu::dcpu::DCPU::new();
     println!("DCPU initialized successfully!");
     dcpu.load_instructions(&args[1]);
-    dcpu.dcpu_run();
+    if let Err(e) = dcpu.dcpu_run() {
+        eprintln!("\n[DCPU Error] {}\n", e);
+        std::process::exit(1);
+    }
 }
