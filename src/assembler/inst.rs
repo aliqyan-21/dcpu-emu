@@ -1,4 +1,4 @@
-use super::token::*;
+use std::collections::HashMap;
 
 #[rustfmt::skip]
 #[derive(Debug, Clone, Copy)]
@@ -86,13 +86,25 @@ pub enum Operand {
 }
 
 impl Operand {
-    pub fn value(&self) -> u16 {
+    pub fn value(&self, labels: &HashMap<String, u16>) -> (u16, Option<u16>) {
         match self {
-            Operand::Register(r) => r.value(),
-            Operand::Hex(h) => *h,
-            Operand::Literal(l) => *l,
-            Operand::MemPtr(m) => *m,
-            Operand::Jmp(_j) => panic!("todo: impl inst addr to memory addr"),
+            Operand::Register(r) => (r.value(), None),
+            Operand::Hex(h) => (0x1f, Some(*h)),
+            Operand::Literal(l) => (0x1f, Some(*l)),
+            Operand::MemPtr(m) => (0x1e, Some(*m)),
+            Operand::Jmp(label_name) => {
+                let addr = *labels
+                    .get(label_name)
+                    .unwrap_or_else(|| panic!("Undefined label: {}", label_name));
+                (0x1f, Some(addr as u16))
+            }
+        }
+    }
+
+    pub fn requires_extra_word(&self) -> bool {
+        match self {
+            Operand::Register(_) => false,
+            _ => true,
         }
     }
 }

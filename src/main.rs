@@ -1,5 +1,5 @@
 mod assembler;
-// mod dcpu;
+mod dcpu;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -9,14 +9,14 @@ fn main() {
         std::process::exit(1);
     }
 
-    let mut asmblr = assembler::assembler::Assembler::new();
-    asmblr.tokenize(args[1].clone());
+    // let mut asmblr = assembler::assembler::Assembler::new();
+    // asmblr.tokenize(args[1].clone());
 
     // for t in asmblr.tokens.iter_mut() {
     //     t.print();
     // }
 
-    asmblr.parse();
+    // asmblr.parse();
 
     // for i in asmblr.instructions {
     //     println!("{:?}", i)
@@ -26,10 +26,10 @@ fn main() {
     //     println!("{:?}", i);
     // }
 
-    asmblr.encode();
+    // asmblr.encode();
 
-    // let mut dcpu = dcpu::dcpu::DCPU::new();
-    // println!("DCPU initialized successfully!");
-    // dcpu.load_rom(args[1].clone());
-    // dcpu.dcpu_run();
+    let mut dcpu = dcpu::dcpu::DCPU::new();
+    println!("DCPU initialized successfully!");
+    dcpu.load_instructions(&args[1]);
+    dcpu.dcpu_run();
 }

@@ -13,4 +13,4 @@ set pc loop        ; otherwise, jump back to loop
 ; this is another label
 :end
   set [0x2000] b     ; store final result of b into memory address 0x2000
-  set pc end ; infinite loop
+  set pc pc          ; stop

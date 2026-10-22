@@ -5,6 +5,7 @@ use std::collections::HashMap;
 pub struct Assembler {
     pub tokens: Vec<Token>,
     pub instructions: Vec<Instruction>,
+    pub machine_code: Vec<u16>,
     pub labels: HashMap<String, usize>, // [label name : inst index]
     pub pos: usize,
 }
@@ -14,8 +15,9 @@ impl Assembler {
         Self {
             tokens: Vec::new(),
             instructions: Vec::new(),
+            machine_code: Vec::new(),
             labels: HashMap::new(),
-            pos: 0,
+            pos: 0, // for token advancing in parser
         }
     }
 

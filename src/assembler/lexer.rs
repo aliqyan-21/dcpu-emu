@@ -13,6 +13,7 @@ impl Assembler {
     fn tokenize_lines(&mut self, asm: &Vec<String>) {
         for (n, line) in asm.iter().enumerate() {
             let line = normalize(line);
+            // println!("{line}");
             for word in line.split_whitespace() {
                 let c = word.chars().nth(0).unwrap();
                 let cc = if word.len() > 1 {

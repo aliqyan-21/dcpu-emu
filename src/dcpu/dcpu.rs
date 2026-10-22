@@ -2,6 +2,8 @@
 dcpu struct and important initializing and prining functions
 */
 
+use super::super::assembler::*;
+
 pub struct DCPU {
     pub ram: [u16; 0x10000], // 128 KB ram
     pub registers: [u16; 8], // A B C X Y Z I J
@@ -63,5 +65,18 @@ impl DCPU {
             self.ram[START_ADDRESS as usize + i] = p;
         }
         println!("Program Loaded, pc is at 0x{:04x}", self.pc)
+    }
+
+    /* load instructions encoded from asm file */
+    pub fn load_instructions(&mut self, path: &str) {
+        let mut asmblr = assembler::Assembler::new();
+        asmblr.tokenize(path.to_string());
+        asmblr.parse();
+        asmblr.encode();
+        println!("\nInstructions to be executed:");
+        for (i, inst) in asmblr.machine_code.iter().enumerate() {
+            println!("{:04x}", inst);
+            self.ram[START_ADDRESS as usize + i] = *inst;
+        }
     }
 }
