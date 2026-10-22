@@ -1,4 +1,5 @@
 use super::assembler::*;
+use super::inst::*;
 use super::token::*;
 use super::utils::*;
 
@@ -71,7 +72,7 @@ impl Assembler {
     // :end
     fn read_label(&mut self, word: &str, n: usize) -> Token {
         self.labels
-            .insert(word.strip_prefix(":").unwrap().to_string(), 100);
+            .insert(word.strip_prefix(":").unwrap().to_string(), 0x000);
         Token::new(TokenType::Label(word.to_string()), n)
     }
 

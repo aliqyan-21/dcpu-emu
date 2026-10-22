@@ -1,19 +1,6 @@
-#[rustfmt::skip]
-#[derive(Debug)]
-pub enum Opcode {
-    Set, Add, Sub, Mul, Mli, Div, Dvi, Mod, Mdi,
-    And, Bor, Xor, Shr, Asr, Shl, Ifb, Ifc, Ife,
-    Ifn, Ifg, Ifa, Ifl, Ifu, Adx, Sbx, Sti, Std,
-    Jsr, Int, Iag, Ias, Rfi, Iaq, Hwn, Hwq, Hwi,
-}
+use super::inst::*;
 
-#[rustfmt::skip]
-#[derive(Debug)]
-pub enum Register {
-    A, B, C, X, Y, Z, I, J, Sp, Pc, Ex,
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TokenType {
     Opcode(Opcode),
     Register(Register),
@@ -26,6 +13,7 @@ pub enum TokenType {
     Ident(String),
 }
 
+#[derive(Clone)]
 pub struct Token {
     t_type: TokenType,
     line: usize,
@@ -34,6 +22,10 @@ pub struct Token {
 impl Token {
     pub fn new(t_type: TokenType, line: usize) -> Self {
         Self { t_type, line }
+    }
+
+    pub fn get_type(&mut self) -> &TokenType {
+        &self.t_type
     }
 
     pub fn print(&mut self) {

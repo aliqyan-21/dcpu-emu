@@ -10,11 +10,23 @@ fn main() {
     }
 
     let mut asmblr = assembler::assembler::Assembler::new();
-    asmblr.assemble(args[1].clone());
+    asmblr.tokenize(args[1].clone());
 
-    for mut t in asmblr.tokens {
-        t.print();
-    }
+    // for t in asmblr.tokens.iter_mut() {
+    //     t.print();
+    // }
+
+    asmblr.parse();
+
+    // for i in asmblr.instructions {
+    //     println!("{:?}", i)
+    // }
+    //
+    // for i in asmblr.labels {
+    //     println!("{:?}", i);
+    // }
+
+    asmblr.encode();
 
     // let mut dcpu = dcpu::dcpu::DCPU::new();
     // println!("DCPU initialized successfully!");
