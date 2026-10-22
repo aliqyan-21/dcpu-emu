@@ -58,6 +58,24 @@ pub enum Register {
     A, B, C, X, Y, Z, I, J, Sp, Pc, Ex,
 }
 
+impl Register {
+    pub fn value(&self) -> u16 {
+        match self {
+            Register::A => 0x00,
+            Register::B => 0x01,
+            Register::C => 0x02,
+            Register::X => 0x03,
+            Register::Y => 0x04,
+            Register::Z => 0x05,
+            Register::I => 0x06,
+            Register::J => 0x07,
+            Register::Sp => 0x1b,
+            Register::Pc => 0x1c,
+            Register::Ex => 0x1d,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum Operand {
     Register(Register),
@@ -65,6 +83,18 @@ pub enum Operand {
     Literal(u16),
     MemPtr(u16),
     Jmp(String),
+}
+
+impl Operand {
+    pub fn value(&self) -> u16 {
+        match self {
+            Operand::Register(r) => r.value(),
+            Operand::Hex(h) => *h,
+            Operand::Literal(l) => *l,
+            Operand::MemPtr(m) => *m,
+            Operand::Jmp(_j) => panic!("todo: impl inst addr to memory addr"),
+        }
+    }
 }
 
 #[derive(Debug)]
