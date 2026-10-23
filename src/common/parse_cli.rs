@@ -22,6 +22,7 @@ pub fn usage() {
     eprintln!("--asm        take .s file as input and run dcpu");
     eprintln!("--rom        take .rom file as input and run dcpu");
     eprintln!("--emit-rom   take .s file as input and emit rom instructions");
+    eprintln!("--help/-h       print this help message");
 }
 
 pub fn parse_args(argv: Vec<String>) -> Result<Args, String> {
@@ -51,6 +52,10 @@ pub fn parse_args(argv: Vec<String>) -> Result<Args, String> {
                     return Err("Cannot use --emit-rom when --rom is active.".to_string());
                 }
                 args.emit_rom = true;
+            }
+            "--help" | "-h" => {
+                usage();
+                std::process::exit(0);
             }
             other => {
                 if other.starts_with("--") {

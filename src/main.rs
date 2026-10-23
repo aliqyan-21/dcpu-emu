@@ -7,8 +7,7 @@ fn main() {
     let args = match common::parse_cli::parse_args(argv) {
         Ok(a) => a,
         Err(e) => {
-            eprintln!("Error: {}", e);
-            common::parse_cli::usage();
+            eprintln!("Error: {} try --help/-h", e);
             std::process::exit(1);
         }
     };
