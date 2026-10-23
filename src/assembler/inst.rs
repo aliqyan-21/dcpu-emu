@@ -96,7 +96,7 @@ impl Opcode {
 #[rustfmt::skip]
 #[derive(Debug, Clone)]
 pub enum Register {
-    A, B, C, X, Y, Z, I, J, Sp, Pc, Ex,
+    A, B, C, X, Y, Z, I, J, Sp, Pc, Ex
 }
 
 impl Register {
@@ -132,7 +132,13 @@ impl Operand {
             Operand::Register(r) => (r.value(), None),
             Operand::Hex(h) => (0x1f, Some(*h)),
             Operand::Literal(l) => (0x1f, Some(*l)),
-            Operand::MemPtr(m) => (0x1e, Some(*m)),
+            Operand::MemPtr(m) => {
+                if *m >= 0x08 && *m <= 0x0f {
+                    (*m, None)
+                } else {
+                    (0x1e, Some(*m))
+                }
+            }
             Operand::Jmp(label_name) => {
                 let addr = *labels.get(label_name).expect("Hmm...");
                 (0x1f, Some(addr as u16))
@@ -143,6 +149,10 @@ impl Operand {
     pub fn requires_extra_word(&self) -> bool {
         match self {
             Operand::Register(_) => false,
+            Operand::MemPtr(m) => {
+                // Register-indirect memory pointers (0x08 to 0x0F) do not require an extra word
+                !(*m >= 0x08 && *m <= 0x0f)
+            }
             _ => true,
         }
     }

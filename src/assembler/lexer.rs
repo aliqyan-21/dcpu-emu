@@ -19,7 +19,7 @@ impl Assembler {
                 self.tokens.push(token);
                 continue;
             }
-            // println!("{line}");
+            println!("{line}");
             for word in line.split_whitespace() {
                 let c = word.chars().nth(0).unwrap();
                 let cc = if word.len() > 1 {
@@ -91,7 +91,7 @@ impl Assembler {
         Token::new(TokenType::Label(word.to_string()), n)
     }
 
-    // [0xfa01]
+    // [0xfa01] / [a] / [I]
     fn read_memory_pointer(&mut self, word: &str, n: usize) -> Token {
         let word = word
             .strip_prefix("[")
@@ -99,9 +99,32 @@ impl Assembler {
             .strip_suffix("]")
             .unwrap()
             .to_string();
-        let word = u16::from_str_radix(word.strip_prefix("0x").unwrap_or(&word), 16)
-            .expect("street fighter in lexer");
-        Token::new(TokenType::MemPtr(word), n)
+
+        if word.starts_with("0x") {
+            let word = u16::from_str_radix(word.strip_prefix("0x").unwrap_or(&word), 16)
+                .expect("street fighter in lexer");
+            Token::new(TokenType::MemPtr(word), n)
+        } else {
+            if self.is_register(&word) {
+                let reg = match word.as_str() {
+                    "a" => Register::A,
+                    "b" => Register::B,
+                    "c" => Register::C,
+                    "x" => Register::X,
+                    "y" => Register::Y,
+                    "z" => Register::Z,
+                    "i" => Register::I,
+                    "j" => Register::J,
+                    "sp" => Register::Sp,
+                    "pc" => Register::Pc,
+                    "ex" => Register::Ex,
+                    _ => unreachable!(),
+                };
+                Token::new(TokenType::MemPtr(0x08 + reg.value()), n)
+            } else {
+                todo!("don't know");
+            }
+        }
     }
 
     // a, b, loop, sum, add
