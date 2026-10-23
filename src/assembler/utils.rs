@@ -11,7 +11,7 @@ pub fn normalize(line: &str) -> String {
         line.truncate(s);
     }
 
-    line.trim().to_string().to_lowercase()
+    line.trim().to_string() //.to_lowercase()
 }
 
 pub fn read_asm(path: String) -> Vec<String> {

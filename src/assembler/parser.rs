@@ -49,6 +49,7 @@ impl Assembler {
                                 chars.next();
                             }
 
+                            let val = val.to_lowercase();
                             let val = val.strip_prefix("0x").unwrap();
                             let val = u16::from_str_radix(&val, 16).unwrap();
 

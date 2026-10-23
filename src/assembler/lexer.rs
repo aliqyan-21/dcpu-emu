@@ -19,7 +19,8 @@ impl Assembler {
                 self.tokens.push(token);
                 continue;
             }
-            println!("{line}");
+            // println!("{line}");
+            let line = line.to_lowercase();
             for word in line.split_whitespace() {
                 let c = word.chars().nth(0).unwrap();
                 let cc = if word.len() > 1 {
