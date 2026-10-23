@@ -4,21 +4,57 @@ use super::token::*;
 
 impl Assembler {
     pub fn parse(&mut self) -> Result<(), String> {
-        let mut inst_idx: usize = 0;
         while !self.is_end() {
             let mut token = self.advance();
             token.print();
-            // token.print();
+
             match token.get_type() {
                 TokenType::Label(name) => {
-                    self.labels
-                        .insert(name.strip_prefix(":").unwrap().to_string(), inst_idx);
+                    self.labels.insert(
+                        name.strip_prefix(":").unwrap().to_string(),
+                        self.items.len(),
+                    );
                 }
                 TokenType::Opcode(i) => {
                     // println!("0x{:02x}", i.code());
                     let inst = self.parse_instruction(*i)?;
-                    self.instructions.push(inst);
-                    inst_idx += 1;
+                    self.items.push(ProgramItem::Instruction(inst));
+                }
+                TokenType::DDirective(dt) => {
+                    let mut chars = dt.chars().peekable();
+                    let mut dataw: Vec<u16> = Vec::new();
+
+                    while let Some(&c) = chars.peek() {
+                        if c.is_whitespace() {
+                            chars.next();
+                        } else if c == '"' {
+                            // string hai
+                            chars.next();
+                            while let Some(&cc) = chars.peek() {
+                                if cc == '"' {
+                                    chars.next();
+                                    break;
+                                }
+                                dataw.push(cc as u16);
+                                chars.next();
+                            }
+                        } else {
+                            // koi hex value
+                            let mut val = String::new();
+                            while let Some(&cc) = chars.peek() {
+                                if cc.is_whitespace() {
+                                    break;
+                                }
+                                val.push(cc);
+                                chars.next();
+                            }
+
+                            let val = u16::from_str_radix(&val, 16).unwrap();
+
+                            dataw.push(val);
+                        }
+                    }
+                    self.items.push(ProgramItem::Data(dataw));
                 }
                 _ => {}
             }

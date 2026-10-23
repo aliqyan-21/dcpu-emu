@@ -164,3 +164,8 @@ impl Instruction {
         }
     }
 }
+
+pub enum ProgramItem {
+    Instruction(Instruction),
+    Data(Vec<u16>),
+}
