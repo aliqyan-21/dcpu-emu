@@ -8,7 +8,7 @@ But as spec is available so I am making the emu.
 ### Plan
 
 - [x] make a dcpu-16 emulator emulator
-- [ ] make it cycle accurate
+- [x] make it cycle accurate
 - [ ] add all the necessary hardware
 - [x] make a assembler to convert assembly of dcpu into the 16 bit hex instructions
 - [ ] advance assembly
