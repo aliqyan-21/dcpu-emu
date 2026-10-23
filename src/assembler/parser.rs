@@ -6,7 +6,7 @@ impl Assembler {
     pub fn parse(&mut self) -> Result<(), String> {
         while !self.is_end() {
             let mut token = self.advance();
-            token.print();
+            // token.print();
 
             match token.get_type() {
                 TokenType::Label(name) => {

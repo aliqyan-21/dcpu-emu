@@ -28,7 +28,7 @@ impl Token {
         &self.t_type
     }
 
-    pub fn print(&mut self) {
-        println!("{} -> {:?}", self.line, self.t_type);
-    }
+    // pub fn print(&mut self) {
+    //     println!("{} -> {:?}", self.line, self.t_type);
+    // }
 }
