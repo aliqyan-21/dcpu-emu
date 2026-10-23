@@ -188,6 +188,7 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b & val_a != 0 {
+            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -198,6 +199,7 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b != val_a {
+            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -208,6 +210,7 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b == val_a {
+            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -218,6 +221,7 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b <= val_a {
+            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -228,6 +232,7 @@ impl DCPU {
         let val_b = *self.get_dst(b)? as i16 as i32;
         self.cycles += 2;
         if val_b <= val_a {
+            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -238,6 +243,7 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b >= val_a {
+            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -248,6 +254,7 @@ impl DCPU {
         let val_b = *self.get_dst(b)? as i16 as i32;
         self.cycles += 2;
         if val_b >= val_a {
+            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -277,7 +284,7 @@ impl DCPU {
         self.dcpu_set(a, b)?;
         self.registers[6] = self.registers[6].wrapping_add(1);
         self.registers[7] = self.registers[7].wrapping_add(1);
-        self.cycles += 2;
+        self.cycles += 1;
         Ok(())
     }
 
@@ -285,7 +292,7 @@ impl DCPU {
         self.dcpu_set(a, b)?;
         self.registers[6] = self.registers[6].wrapping_sub(1);
         self.registers[7] = self.registers[7].wrapping_sub(1);
-        self.cycles += 2;
+        self.cycles += 1;
         Ok(())
     }
 }
