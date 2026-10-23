@@ -14,6 +14,11 @@ impl Assembler {
     fn tokenize_lines(&mut self, asm: &Vec<String>) -> Result<(), String> {
         for (n, line) in asm.iter().enumerate() {
             let line = normalize(line);
+            if line.starts_with(".dat") {
+                let token = self.read_data_directive(&line, n + 1);
+                self.tokens.push(token);
+                continue;
+            }
             // println!("{line}");
             for word in line.split_whitespace() {
                 let c = word.chars().nth(0).unwrap();
@@ -72,6 +77,11 @@ impl Assembler {
         let word = u16::from_str_radix(word.strip_prefix("0x").unwrap_or(&word), 10)
             .expect("street fighter in lexer");
         Token::new(TokenType::Literal(word), n)
+    }
+
+    fn read_data_directive(&mut self, line: &str, n: usize) -> Token {
+        let line = line.strip_prefix(".dat").unwrap().trim();
+        Token::new(TokenType::DDirective(line.to_string()), n)
     }
 
     // :end

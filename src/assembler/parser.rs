@@ -7,6 +7,7 @@ impl Assembler {
         let mut inst_idx: usize = 0;
         while !self.is_end() {
             let mut token = self.advance();
+            token.print();
             // token.print();
             match token.get_type() {
                 TokenType::Label(name) => {

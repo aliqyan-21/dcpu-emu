@@ -84,8 +84,7 @@ The specifications of how assembly will be written for this DCPU-16 implementati
 
 ```assembly
 message:
-  .dat "Hello", 0x00   ; character array terminated by null
-
+  .dat "Hello" "World" "This is amazing" 0x0000
 ```
 
 ### Reference

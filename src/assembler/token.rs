@@ -9,7 +9,7 @@ pub enum TokenType {
     Label(String),
     MemPtr(u16),
     Jmp(String),
-    //todo: .dat and string
+    DDirective(String), // .dat
     Ident(String),
 }
 
@@ -28,7 +28,7 @@ impl Token {
         &self.t_type
     }
 
-    // pub fn print(&mut self) {
-    //     println!("{} -> {:?}", self.line, self.t_type);
-    // }
+    pub fn print(&mut self) {
+        println!("{} -> {:?}", self.line, self.t_type);
+    }
 }
