@@ -7,21 +7,28 @@ But as spec is available so I am making the emu.
 
 ### Plan
 
-- [ ] make a cycle accurate emulator
-- [ ] build a basic lang to lower into assembly of dcpu (or use existing ones and add backend or something...)
-- [ ] make a assembler to convert that into the 16 bit hex instructions
-- [ ] execute it into the emulator
+- [x] make a dcpu-16 emulator emulator
+- [ ] make it cycle accurate
+- [ ] add all the necessary hardware
+- [x] make a assembler to convert assembly of dcpu into the 16 bit hex instructions
+- [ ] advance assembly
 
 ```diff
 - WIP
 ```
 
-### Run
+### Install and build
 
 ```bash
 git clone https://github.com/aliqyan-21/dcpu-emu
 cd dcpu-emu
-cargo run
+cargo build
+```
+
+### Usage
+
+```bash
+./dcpu-emu --help
 ```
 
 ### License
