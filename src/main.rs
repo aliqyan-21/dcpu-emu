@@ -1,45 +1,54 @@
 mod assembler;
+mod common;
 mod dcpu;
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
+    let argv: Vec<String> = std::env::args().collect();
+    let args = match common::parse_cli::parse_args(argv) {
+        Ok(a) => a,
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            common::parse_cli::usage();
+            std::process::exit(1);
+        }
+    };
 
-    if args.len() < 2 {
-        eprintln!("usage: {} <filepath>", args[0]);
-        std::process::exit(1);
-    }
+    if args.rom {
+        let mut dcpu = dcpu::dcpu::DCPU::new();
+        println!("DCPU initialized successfully with ROM!");
 
-    // --asm file.s // take assembly file gen rom and run in dcpu
-    // --rom file.rom // take rom file and run dcpu
-    // --emit-rom file.s // take assembly generate rom
+        dcpu.load_rom(args.filepath);
 
-    // let mut asmblr = assembler::assembler::Assembler::new();
-    // asmblr.tokenize(args[1].clone());
+        if let Err(e) = dcpu.dcpu_run() {
+            eprintln!("[DCPU Error] {}", e);
+            std::process::exit(1);
+        }
+    } else if args.emit_rom {
+        let mut asmblr = assembler::assembler::Assembler::new();
+        _ = asmblr.tokenize(args.filepath.clone()); // todo: not return the tokens
 
-    // for t in asmblr.tokens.iter_mut() {
-    //     t.print();
-    // }
+        if let Err(e) = asmblr.parse() {
+            eprintln!("[Assembler Error] {}", e);
+            std::process::exit(1);
+        }
 
-    // asmblr.parse();
+        asmblr.encode();
 
-    // for i in asmblr.instructions {
-    //     println!("{:?}", i)
-    // }
-    //
-    // for i in asmblr.labels {
-    //     println!("{:?}", i);
-    // }
+        for inst in &asmblr.machine_code {
+            println!("0x{:04x}", inst);
+        }
+    } else {
+        let mut dcpu = dcpu::dcpu::DCPU::new();
+        println!("DCPU initialized successfully!");
 
-    // asmblr.encode();
+        if let Err(e) = dcpu.load_instructions(&args.filepath) {
+            eprintln!("[Assembler Error] {}", e);
+            std::process::exit(1);
+        }
 
-    let mut dcpu = dcpu::dcpu::DCPU::new();
-    println!("DCPU initialized successfully!");
-    if let Err(e) = dcpu.load_instructions(&args[1]) {
-        eprintln!("[Assembler Error] {}", e);
-        std::process::exit(1);
-    }
-    if let Err(e) = dcpu.dcpu_run() {
-        eprintln!("[DCPU Error] {}", e);
-        std::process::exit(1);
+        if let Err(e) = dcpu.dcpu_run() {
+            eprintln!("[DCPU Error] {}", e);
+            std::process::exit(1);
+        }
     }
 }

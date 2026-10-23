@@ -73,9 +73,7 @@ impl DCPU {
         asmblr.tokenize(path.to_string())?;
         asmblr.parse()?;
         asmblr.encode();
-        println!("\nInstructions to be executed:");
         for (i, inst) in asmblr.machine_code.iter().enumerate() {
-            println!("{:04x}", inst);
             self.ram[START_ADDRESS as usize + i] = *inst;
         }
         Ok(())

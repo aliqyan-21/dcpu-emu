@@ -274,7 +274,7 @@ impl DCPU {
     }
 
     pub fn dcpu_sti(&mut self, a: u16, b: u16) -> Result<(), String> {
-        self.dcpu_set(a, b);
+        self.dcpu_set(a, b)?;
         self.registers[6] = self.registers[6].wrapping_add(1);
         self.registers[7] = self.registers[7].wrapping_add(1);
         self.cycles += 2;
@@ -282,7 +282,7 @@ impl DCPU {
     }
 
     pub fn dcpu_std(&mut self, a: u16, b: u16) -> Result<(), String> {
-        self.dcpu_set(a, b);
+        self.dcpu_set(a, b)?;
         self.registers[6] = self.registers[6].wrapping_sub(1);
         self.registers[7] = self.registers[7].wrapping_sub(1);
         self.cycles += 2;
