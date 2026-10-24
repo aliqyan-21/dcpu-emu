@@ -13,9 +13,9 @@ impl DCPU {
 
     pub fn dcpu_add(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a) as u32;
-        let val_b = *self.get_dst(b)? as u32;
-        let res = val_b + val_a;
-        *self.get_dst(b)? = res as u16;
+        let dst = self.get_dst(b)?;
+        let res = *dst as u32 + val_a;
+        *dst = res as u16;
         self.ex = if res > 0xFFFF { 0x0001 } else { 0x0000 };
         self.cycles += 2;
         Ok(())
@@ -159,16 +159,22 @@ impl DCPU {
     }
 
     fn skip_routine(&mut self) {
-        let instr = self.ram[self.pc as usize];
-        self.pc = self.pc.wrapping_add(1);
-        let (_op, a, b) = DCPU::decode(instr);
-        if matches!(a, 0x10..=0x17 | 0x1a | 0x1e | 0x1f) {
+        loop {
+            let instr = self.ram[self.pc as usize];
             self.pc = self.pc.wrapping_add(1);
+            let (op, a, b) = DCPU::decode(instr);
             self.cycles += 1;
-        }
-        if matches!(b, 0x10..=0x17 | 0x1a | 0x1e | 0x1f) {
-            self.pc = self.pc.wrapping_add(1);
-            self.cycles += 1;
+
+            if matches!(a, 0x10..=0x17 | 0x1a | 0x1e | 0x1f) {
+                self.pc = self.pc.wrapping_add(1);
+            }
+            if op != 0 && matches!(b, 0x10..=0x17 | 0x1a | 0x1e | 0x1f) {
+                self.pc = self.pc.wrapping_add(1);
+            }
+
+            if !(0x10..=0x17).contains(&op) {
+                break;
+            }
         }
     }
 
@@ -177,7 +183,6 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b & val_a == 0 {
-            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -188,7 +193,6 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b & val_a != 0 {
-            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -199,7 +203,6 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b != val_a {
-            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -210,7 +213,6 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b == val_a {
-            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -221,7 +223,6 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b <= val_a {
-            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -232,7 +233,6 @@ impl DCPU {
         let val_b = *self.get_dst(b)? as i16 as i32;
         self.cycles += 2;
         if val_b <= val_a {
-            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -243,7 +243,6 @@ impl DCPU {
         let val_b = *self.get_dst(b)?;
         self.cycles += 2;
         if val_b >= val_a {
-            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -254,7 +253,6 @@ impl DCPU {
         let val_b = *self.get_dst(b)? as i16 as i32;
         self.cycles += 2;
         if val_b >= val_a {
-            self.cycles += 1;
             self.skip_routine();
         }
         Ok(())
@@ -273,9 +271,15 @@ impl DCPU {
     pub fn dcpu_sbx(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a) as i32;
         let val_b = *self.get_dst(b)? as i32;
-        let res = val_b - val_a + self.ex as i32;
+        let res = val_b - val_a + self.ex as i16 as i32;
         *self.get_dst(b)? = res as u16;
-        self.ex = if res < 0 { 0xFFFF } else { 0x0000 };
+        self.ex = if res < 0 {
+            0xFFFF
+        } else if res > 0xFFFF {
+            1
+        } else {
+            0
+        };
         self.cycles += 3;
         Ok(())
     }
