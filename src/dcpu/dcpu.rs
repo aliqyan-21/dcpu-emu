@@ -44,7 +44,7 @@ impl DCPU {
             "PC: 0x{:04x}  SP: 0x{:04x}  EX: 0x{:04x}  IA: 0x{:04x}",
             self.pc, self.sp, self.ex, self.ia
         );
-        println!("cycles: {}", self.cycles);
+        println!("cycles: {}\n", self.cycles);
     }
 
     fn load_program(path: String) -> Vec<u16> {

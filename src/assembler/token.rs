@@ -12,7 +12,7 @@ pub enum TokenType {
     MemPtr(u16, Option<u16>), // (code, extra word)
     Jmp(String),
     DDirective(String), // .dat
-    Ident(String),
+    // Ident(String),
 }
 
 #[derive(Clone)]

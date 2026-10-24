@@ -2,6 +2,7 @@ pub struct Args {
     pub asm: bool,
     pub rom: bool,
     pub emit_rom: bool,
+    pub trace: bool,
     pub filepath: String,
 }
 
@@ -11,6 +12,7 @@ impl Args {
             asm: false,
             rom: false,
             emit_rom: false,
+            trace: false,
             filepath: String::new(),
         }
     }
@@ -52,6 +54,9 @@ pub fn parse_args(argv: Vec<String>) -> Result<Args, String> {
                     return Err("Cannot use --emit-rom when --rom is active.".to_string());
                 }
                 args.emit_rom = true;
+            }
+            "--trace" => {
+                args.trace = true;
             }
             "--help" | "-h" => {
                 usage();

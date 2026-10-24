@@ -4,6 +4,8 @@ implemenation of dcpu_run
 
 use crate::dcpu::dcpu::DCPU;
 
+const MAX_CYCLES: u64 = 10_000_000;
+
 impl DCPU {
     pub fn decode(inst: u16) -> (u16, u16, u16) {
         let opcode = inst & 0x001F;
@@ -12,8 +14,16 @@ impl DCPU {
         (opcode, a, b)
     }
 
-    pub fn dcpu_run(&mut self) -> Result<(), String> {
+    pub fn dcpu_run(&mut self, trace: bool) -> Result<(), String> {
         loop {
+            if self.cycles > MAX_CYCLES {
+                return Err(format!(
+                    "cycle limit ({}) exceeded to {} cycles",
+                    MAX_CYCLES,
+                    self.cycles - MAX_CYCLES
+                ));
+            }
+
             // fetch
             let inst_pc = self.pc; // for graceful stopping set pc <same pc addr>
 
@@ -26,7 +36,7 @@ impl DCPU {
 
             // decode
             let (opcode, a, b) = DCPU::decode(inst);
-            println!("\nopcode: {opcode}, a: {a}, b: {b}");
+            // println!("\nopcode: {opcode}, a: {a}, b: {b}");
 
             // execute
             match opcode {
@@ -74,7 +84,9 @@ impl DCPU {
                 0x1f => self.dcpu_std(a, b)?,
                 _ => return Err(format!("opcode not suppoorted: 0x{:04x}", opcode)),
             };
-            self.print_state();
+            if trace {
+                self.print_state();
+            }
             if self.pc == inst_pc {
                 println!("\nprogram halted (jump to self) at 0x{:04x}", inst_pc);
                 break;

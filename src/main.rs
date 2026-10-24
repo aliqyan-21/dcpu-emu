@@ -18,13 +18,15 @@ fn main() {
 
         dcpu.load_rom(args.filepath);
 
-        if let Err(e) = dcpu.dcpu_run() {
+        if let Err(e) = dcpu.dcpu_run(args.trace) {
             eprintln!("[DCPU Error] {}", e);
             std::process::exit(1);
         }
     } else if args.emit_rom {
         let mut asmblr = assembler::assembler::Assembler::new();
-        _ = asmblr.tokenize(args.filepath.clone()); // todo: not return the tokens
+        if let Err(e) = asmblr.tokenize(args.filepath.clone()) {
+            eprintln!("[Assembler Error] {}", e);
+        }
 
         if let Err(e) = asmblr.parse() {
             eprintln!("[Assembler Error] {}", e);
@@ -45,7 +47,7 @@ fn main() {
             std::process::exit(1);
         }
 
-        if let Err(e) = dcpu.dcpu_run() {
+        if let Err(e) = dcpu.dcpu_run(args.trace) {
             eprintln!("[DCPU Error] {}", e);
             std::process::exit(1);
         }

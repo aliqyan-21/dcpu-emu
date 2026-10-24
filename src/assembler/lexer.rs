@@ -34,7 +34,7 @@ impl Assembler {
                     let token = self.read_label(word, n + 1);
                     self.tokens.push(token);
                 } else if c.is_alphabetic() {
-                    let token = self.read_identifier(word, n + 1);
+                    let token = self.read_identifier(word, n + 1)?;
                     self.tokens.push(token);
                 } else if c == '[' {
                     let token = self.read_memory_pointer(word, n + 1);
@@ -155,13 +155,13 @@ impl Assembler {
     }
 
     // a, b, loop, sum, add
-    fn read_identifier(&mut self, word: &str, n: usize) -> Token {
+    fn read_identifier(&mut self, word: &str, n: usize) -> Result<Token, String> {
         if self.is_stackop(word) {
             let code = if word == "peek" { 0x19 } else { 0x18 };
-            return Token::new(TokenType::MemPtr(code, None), n);
+            return Ok(Token::new(TokenType::MemPtr(code, None), n));
         }
         if self.labels.contains_key(word) {
-            Token::new(TokenType::Jmp(word.to_string()), n)
+            Ok(Token::new(TokenType::Jmp(word.to_string()), n))
         } else if self.is_register(&word) {
             let reg = match word {
                 "a" => Register::A,
@@ -177,7 +177,7 @@ impl Assembler {
                 "ex" => Register::Ex,
                 _ => unreachable!(),
             };
-            Token::new(TokenType::Register(reg), n)
+            Ok(Token::new(TokenType::Register(reg), n))
         } else if self.is_opcode(&word) {
             let op = match word {
                 "set" => Opcode::Set,
@@ -218,9 +218,12 @@ impl Assembler {
                 "hwi" => Opcode::Hwi,
                 _ => unreachable!(),
             };
-            Token::new(TokenType::Opcode(op), n)
+            Ok(Token::new(TokenType::Opcode(op), n))
         } else {
-            Token::new(TokenType::Ident(word.to_string()), n)
+            Err(format!(
+                "expected opcode/register, found: '{}' at line {}",
+                word, n
+            ))
         }
     }
 }
