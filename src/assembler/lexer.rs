@@ -101,37 +101,65 @@ impl Assembler {
             .unwrap()
             .strip_suffix("]")
             .unwrap()
-            .to_string();
+            .trim();
 
-        if word.starts_with("0x") {
-            let word = u16::from_str_radix(word.strip_prefix("0x").unwrap_or(&word), 16)
-                .expect("street fighter in lexer");
-            Token::new(TokenType::MemPtr(word), n)
-        } else {
-            if self.is_register(&word) {
-                let reg = match word.as_str() {
-                    "a" => Register::A,
-                    "b" => Register::B,
-                    "c" => Register::C,
-                    "x" => Register::X,
-                    "y" => Register::Y,
-                    "z" => Register::Z,
-                    "i" => Register::I,
-                    "j" => Register::J,
-                    "sp" => Register::Sp,
-                    "pc" => Register::Pc,
-                    "ex" => Register::Ex,
-                    _ => unreachable!(),
-                };
-                Token::new(TokenType::MemPtr(0x08 + reg.value()), n)
-            } else {
-                todo!("don't know");
+        // [a] - [j]
+        if self.is_register(word) {
+            let reg = Register::str(word);
+            return Token::new(TokenType::MemPtr(0x08 + reg.value(), None), n);
+        }
+
+        // [0x1000]
+        if let Some(val) = Self::parse_number(&word) {
+            return Token::new(TokenType::MemPtr(0x1e, Some(val)), n);
+        }
+
+        // [0x2000+i] or [sp+4]
+        if word.contains('+') {
+            let parts: Vec<&str> = word.split('+').map(|s| s.trim()).collect();
+            if parts.len() == 2 {
+                let mut reg_code = None;
+                let mut is_sp = false;
+                let mut offset = None;
+
+                for p in parts {
+                    if self.is_register(p) {
+                        if p == "sp" {
+                            is_sp = true;
+                        } else {
+                            reg_code = Some(Register::str(p).value());
+                        }
+                    } else if let Some(v) = Self::parse_number(p) {
+                        offset = Some(v)
+                    }
+                }
+
+                if let Some(val) = offset {
+                    if is_sp {
+                        return Token::new(TokenType::MemPtr(0x1a, Some(val)), n);
+                    } else if let Some(r) = reg_code {
+                        return Token::new(TokenType::MemPtr(0x10 + r, Some(val)), n);
+                    }
+                }
             }
+        }
+        panic!("Unknown memory pointer format: [{}] at line {}", word, n);
+    }
+
+    fn parse_number(s: &str) -> Option<u16> {
+        if s.starts_with("0x") {
+            u16::from_str_radix(s.strip_prefix("0x").unwrap(), 16).ok()
+        } else {
+            u16::from_str_radix(s, 10).ok()
         }
     }
 
     // a, b, loop, sum, add
     fn read_identifier(&mut self, word: &str, n: usize) -> Token {
+        if self.is_stackop(word) {
+            let code = if word == "peek" { 0x19 } else { 0x18 };
+            return Token::new(TokenType::MemPtr(code, None), n);
+        }
         if self.labels.contains_key(word) {
             Token::new(TokenType::Jmp(word.to_string()), n)
         } else if self.is_register(&word) {

@@ -86,7 +86,7 @@ impl Assembler {
             TokenType::Hex(h) => Operand::Hex(h.clone()),
             TokenType::Literal(l) => Operand::Literal(l.clone()),
             TokenType::Jmp(j) => Operand::Jmp(j.clone()),
-            TokenType::MemPtr(m) => Operand::MemPtr(m.clone()),
+            TokenType::MemPtr(c, ex) => Operand::MemPtr(*c, *ex),
             _ => {
                 return Err(format!(
                     "expected value/register at destination operand at line {}, found{:?}",
@@ -105,7 +105,7 @@ impl Assembler {
                 TokenType::Hex(h) => Operand::Hex(h.clone()),
                 TokenType::Literal(l) => Operand::Literal(l.clone()),
                 TokenType::Jmp(j) => Operand::Jmp(j.clone()),
-                TokenType::MemPtr(m) => Operand::MemPtr(m.clone()),
+                TokenType::MemPtr(c, ex) => Operand::MemPtr(*c, *ex),
                 _ => {
                     return Err(format!(
                         "expected value/register at source operand at line {}, found {:?}",

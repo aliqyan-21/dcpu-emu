@@ -9,7 +9,7 @@ pub enum TokenType {
     Hex(u16),
     Literal(u16),
     Label(String),
-    MemPtr(u16),
+    MemPtr(u16, Option<u16>), // (code, extra word)
     Jmp(String),
     DDirective(String), // .dat
     Ident(String),

@@ -117,6 +117,23 @@ impl Register {
             Register::Ex => 0x1d,
         }
     }
+
+    pub fn str(word: &str) -> Register {
+        match word {
+            "a" => Register::A,
+            "b" => Register::B,
+            "c" => Register::C,
+            "x" => Register::X,
+            "y" => Register::Y,
+            "z" => Register::Z,
+            "i" => Register::I,
+            "j" => Register::J,
+            "sp" => Register::Sp,
+            "pc" => Register::Pc,
+            "ex" => Register::Ex,
+            _ => unreachable!(),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -124,7 +141,7 @@ pub enum Operand {
     Register(Register),
     Hex(u16),
     Literal(u16),
-    MemPtr(u16),
+    MemPtr(u16, Option<u16>),
     Jmp(String),
 }
 
@@ -134,13 +151,7 @@ impl Operand {
             Operand::Register(r) => (r.value(), None),
             Operand::Hex(h) => (0x1f, Some(*h)),
             Operand::Literal(l) => (0x1f, Some(*l)),
-            Operand::MemPtr(m) => {
-                if *m >= 0x08 && *m <= 0x0f {
-                    (*m, None)
-                } else {
-                    (0x1e, Some(*m))
-                }
-            }
+            Operand::MemPtr(c, ex) => (*c, *ex),
             Operand::Jmp(label_name) => {
                 let addr = *labels.get(label_name).expect("Hmm...");
                 (0x1f, Some(addr as u16))
@@ -150,12 +161,9 @@ impl Operand {
 
     pub fn requires_extra_word(&self) -> bool {
         match self {
-            Operand::Register(_) => false,
-            Operand::MemPtr(m) => {
-                // Register-indirect memory pointers (0x08 to 0x0F) do not require an extra word
-                !(*m >= 0x08 && *m <= 0x0f)
-            }
-            _ => true,
+            Operand::MemPtr(_, ex) => ex.is_some(),
+            Operand::Hex(_) | Operand::Literal(_) | Operand::Jmp(_) => true,
+            _ => false,
         }
     }
 }

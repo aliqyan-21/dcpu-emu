@@ -36,6 +36,8 @@ impl Assembler {
 
     const REGISTERS: &[&str] = &["a", "b", "c", "x", "y", "z", "i", "j", "sp", "pc", "ex"];
 
+    const STACKOP: &[&str] = &["push", "pop", "peek"];
+
     pub fn is_opcode(&mut self, word: &str) -> bool {
         Self::BOPCODES.contains(&word) || Self::SOPCODES.contains(&word)
     }
@@ -46,5 +48,9 @@ impl Assembler {
 
     pub fn is_register(&mut self, word: &str) -> bool {
         Self::REGISTERS.contains(&word)
+    }
+
+    pub fn is_stackop(&mut self, word: &str) -> bool {
+        Self::STACKOP.contains(&word)
     }
 }
