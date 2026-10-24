@@ -1,3 +1,5 @@
+; expect: a=1 b=2 c=0x000b ex=0 pc=0x0013 cycles=25
+
 set a 7
 mdi a 3          ; A = 1
 set b 0x8001

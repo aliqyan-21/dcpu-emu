@@ -2,6 +2,9 @@ mod assembler;
 mod common;
 mod dcpu;
 
+#[cfg(test)]
+mod test_corpus;
+
 fn main() {
     let argv: Vec<String> = std::env::args().collect();
     let args = match common::parse_cli::parse_args(argv) {

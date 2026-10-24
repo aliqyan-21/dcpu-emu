@@ -24,7 +24,8 @@ pub fn usage() {
     eprintln!("--asm        take .s file as input and run dcpu");
     eprintln!("--rom        take .rom file as input and run dcpu");
     eprintln!("--emit-rom   take .s file as input and emit rom instructions");
-    eprintln!("--help/-h       print this help message");
+    eprintln!("--trace      traces register state and cycles at each instruction execution");
+    eprintln!("--help/-h    print this help message");
 }
 
 pub fn parse_args(argv: Vec<String>) -> Result<Args, String> {

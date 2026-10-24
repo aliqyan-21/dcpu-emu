@@ -1,3 +1,5 @@
+; expect: a=0 b=0x19 pc=17 cycles=126
+
 set a 0x000a       ; load 10 into register a
 set b 0x0005       ; load 5 into register b
 

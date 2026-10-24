@@ -1,3 +1,5 @@
+; expect: a=0x2000 x=0x0040 i=0 pc=0x0020 cycles=128
+
 ; Notch's DCPU-16 reference test script
 
 ; Try some basic stuff
