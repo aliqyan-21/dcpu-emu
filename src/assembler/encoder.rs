@@ -14,18 +14,24 @@ impl Assembler {
                 ProgramItem::Instruction(inst) => {
                     // println!("{:?}", i);
                     let opcode = inst.opcode.code();
-                    let (b_bits, b_extra) = inst.operand1.value(&labels);
-                    let (a_bits, a_extra) = match &inst.operand2 {
-                        Some(op) => op.value(&labels),
-                        None => (0x00, None),
+                    let (first_bits, first_extra) = inst.operand1.value(&labels);
+                    let (inst_code, a_extra, b_extra) = match &inst.operand2 {
+                        Some(op2) => {
+                            let (a_bits, a_extra) = op2.value(&labels);
+                            (
+                                (a_bits << 10) | (first_bits << 5) | opcode,
+                                a_extra,
+                                first_extra,
+                            )
+                        }
+                        None => ((first_bits << 10) | (opcode << 5), first_extra, None),
                     };
-                    let inst_code: u16 = (a_bits) << 10 | (b_bits) << 5 | opcode;
                     self.machine_code.push(inst_code);
 
-                    if let Some(extra) = b_extra {
+                    if let Some(extra) = a_extra {
                         self.machine_code.push(extra);
                     }
-                    if let Some(extra) = a_extra {
+                    if let Some(extra) = b_extra {
                         self.machine_code.push(extra);
                     }
                 }
