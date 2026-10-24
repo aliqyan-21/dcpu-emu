@@ -15,12 +15,14 @@ impl DCPU {
     pub fn dcpu_run(&mut self) -> Result<(), String> {
         loop {
             // fetch
+            let inst_pc = self.pc; // for graceful stopping set pc <same pc addr>
+
             let inst = self.ram[self.pc as usize];
             if inst == 0x0000 {
                 println!("\nprogram finished, stopping execution...");
                 break;
             }
-            self.pc += 1;
+            self.pc = self.pc.wrapping_add(1);
 
             // decode
             let (opcode, a, b) = DCPU::decode(inst);
@@ -73,6 +75,10 @@ impl DCPU {
                 _ => return Err(format!("opcode not suppoorted: 0x{:04x}", opcode)),
             };
             self.print_state();
+            if self.pc == inst_pc {
+                println!("\nprogram halted (jump to self) at 0x{:04x}", inst_pc);
+                break;
+            }
         }
         Ok(())
     }
