@@ -83,7 +83,12 @@ impl DCPU {
                 self.cycles += 1;
                 Ok(&mut self.ram[next_word as usize])
             }
-            0x1f => Err(format!("cannot use literal as dst")),
+            0x1f => {
+                let addr = self.pc as usize;
+                self.pc = self.pc.wrapping_add(1);
+                self.cycles += 1;
+                Ok(&mut self.ram[addr])
+            }
             0x20..=0x3f => Err(format!("cannot use literal as dst")),
             _ => unreachable!(),
         }
