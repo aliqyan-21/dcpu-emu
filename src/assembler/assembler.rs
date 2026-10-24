@@ -1,3 +1,6 @@
+/* implementation of the main Assembler structure
+containing control and data for lexing, parsing and encoding */
+
 use super::inst::*;
 use super::token::*;
 use std::collections::HashMap;

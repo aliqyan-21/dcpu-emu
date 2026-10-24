@@ -1,3 +1,5 @@
+/* token struct and periphery */
+
 use super::inst::*;
 
 #[derive(Debug, Clone)]

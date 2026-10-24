@@ -1,3 +1,5 @@
+/* collection of all structs and enums related to the instructions */
+
 use std::collections::HashMap;
 
 #[rustfmt::skip]

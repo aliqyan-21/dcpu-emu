@@ -1,3 +1,5 @@
+/* utilities */
+
 use std::fs;
 
 pub fn normalize(line: &str) -> String {

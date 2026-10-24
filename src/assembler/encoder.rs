@@ -1,3 +1,5 @@
+/* implementation of the encoder which takes parsed instruction and turns them in machine code */
+
 use super::assembler::*;
 use super::inst::*;
 use std::collections::HashMap;
