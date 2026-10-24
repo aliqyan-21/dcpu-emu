@@ -23,9 +23,9 @@ impl DCPU {
 
     pub fn dcpu_sub(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a) as i32;
-        let val_b = *self.get_dst(b)? as i32;
-        let res = val_b - val_a;
-        *self.get_dst(b)? = res as u16;
+        let dst = self.get_dst(b)?;
+        let res = *dst as i32 - val_a;
+        *dst = res as u16;
         self.ex = if res < 0 { 0xFFFF } else { 0x0000 };
         self.cycles += 2;
         Ok(())
@@ -33,9 +33,9 @@ impl DCPU {
 
     pub fn dcpu_mul(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a) as u32;
-        let val_b = *self.get_dst(b)? as u32;
-        let res = val_b * val_a;
-        *self.get_dst(b)? = res as u16;
+        let dst = self.get_dst(b)?;
+        let res = *dst as u32 * val_a;
+        *dst = res as u16;
         self.ex = ((res >> 16) & 0xffff) as u16;
         self.cycles += 2;
         Ok(())
@@ -43,23 +43,23 @@ impl DCPU {
 
     pub fn dcpu_mli(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a) as i16 as i32;
-        let val_b = *self.get_dst(b)? as i16 as i32;
-        let res = val_b * val_a;
-        *self.get_dst(b)? = res as u16;
-        self.ex = ((res as u32 >> 16) & 0xffff) as u16;
+        let dst = self.get_dst(b)?;
+        let res = (*dst as i16 as i32) * val_a;
+        *dst = res as u16;
+        self.ex = ((res as u32) >> 16) as u16;
         self.cycles += 2;
         Ok(())
     }
 
     pub fn dcpu_div(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a) as u32;
-        let val_b = *self.get_dst(b)? as u32;
+        let dst = self.get_dst(b)?;
+        let val_b = *dst as u32;
         if val_a == 0 {
-            *self.get_dst(b)? = 0;
+            *dst = 0;
             self.ex = 0;
         } else {
-            let res = val_b / val_a;
-            *self.get_dst(b)? = res as u16;
+            *dst = (val_b / val_a) as u16;
             self.ex = ((val_b << 16) / val_a & 0xffff) as u16;
         }
         self.cycles += 3;
@@ -68,14 +68,14 @@ impl DCPU {
 
     pub fn dcpu_dvi(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a) as i16 as i32;
-        let val_b = *self.get_dst(b)? as i16 as i32;
+        let dst = self.get_dst(b)?;
+        let val_b = *dst as i16 as i32;
         if val_a == 0 {
-            *self.get_dst(b)? = 0;
+            *dst = 0;
             self.ex = 0;
         } else {
-            let res = val_b / val_a;
-            *self.get_dst(b)? = res as u16;
-            self.ex = (((val_b as u32) << 16) / (val_a as u32) & 0xffff) as u16;
+            *dst = val_b.wrapping_div(val_a) as u16;
+            self.ex = (((val_b << 16).wrapping_div(val_a)) & 0xffff) as u16;
         }
         self.cycles += 3;
         Ok(())
@@ -83,58 +83,53 @@ impl DCPU {
 
     pub fn dcpu_mod(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a);
-        let val_b = *self.get_dst(b)?;
-        if val_a == 0 {
-            *self.get_dst(b)? = 0;
-        } else {
-            let res = val_b % val_a;
-            *self.get_dst(b)? = res as u16;
-        }
+        let dst = self.get_dst(b)?;
+        *dst = if val_a == 0 { 0 } else { *dst % val_a };
         self.cycles += 3;
         Ok(())
     }
 
     pub fn dcpu_mdi(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a) as i16;
-        let val_b = *self.get_dst(b)? as i16;
-        if val_a == 0 {
-            *self.get_dst(b)? = 0;
+        let dst = self.get_dst(b)?;
+        *dst = if val_a == 0 {
+            0
         } else {
-            let res = val_b % val_a;
-            *self.get_dst(b)? = res as u16;
-        }
+            (*dst as i16).wrapping_rem(val_a) as u16
+        };
         self.cycles += 3;
         Ok(())
     }
 
     pub fn dcpu_and(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a);
-        let val_b = *self.get_dst(b)?;
-        *self.get_dst(b)? = val_b & val_a;
+        let dst = self.get_dst(b)?;
+        *dst &= val_a;
         self.cycles += 1;
         Ok(())
     }
 
     pub fn dcpu_bor(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a);
-        let val_b = *self.get_dst(b)?;
-        *self.get_dst(b)? = val_b | val_a;
+        let dst = self.get_dst(b)?;
+        *dst |= val_a;
         self.cycles += 1;
         Ok(())
     }
 
     pub fn dcpu_xor(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a);
-        let val_b = *self.get_dst(b)?;
-        *self.get_dst(b)? = val_b ^ val_a;
+        let dst = self.get_dst(b)?;
+        *dst ^= val_a;
         self.cycles += 1;
         Ok(())
     }
 
     pub fn dcpu_shr(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = (self.get_src(a) as u32).min(16);
-        let val_b = *self.get_dst(b)? as u32;
-        *self.get_dst(b)? = (val_b >> val_a) as u16;
+        let dst = self.get_dst(b)?;
+        let val_b = *dst as u32;
+        *dst = (val_b >> val_a) as u16;
         self.ex = ((((val_b as u32) << 16) >> val_a) & 0xffff) as u16;
         self.cycles += 1;
         Ok(())
@@ -142,18 +137,20 @@ impl DCPU {
 
     pub fn dcpu_asr(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = (self.get_src(a) as u32).min(16);
-        let val_b = *self.get_dst(b)? as i16 as i32;
-        *self.get_dst(b)? = (val_b >> val_a) as u16;
-        self.ex = ((((val_b as i32) << 16) >> val_a) as u32 & 0xffff) as u16;
+        let dst = self.get_dst(b)?;
+        let val_b = *dst as i16 as i32;
+        *dst = (val_b >> val_a) as u16;
+        self.ex = (((val_b << 16) >> val_a) as u32 & 0xffff) as u16;
         self.cycles += 1;
         Ok(())
     }
 
     pub fn dcpu_shl(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = (self.get_src(a) as u32).min(16);
-        let val_b = *self.get_dst(b)? as u32;
-        *self.get_dst(b)? = (val_b << val_a) as u16;
-        self.ex = ((((val_b as u32) << val_a) >> 16) & 0xffff) as u16;
+        let dst = self.get_dst(b)?;
+        let val_b = *dst as u32;
+        *dst = (val_b << val_a) as u16;
+        self.ex = (((val_b << val_a) >> 16) & 0xffff) as u16;
         self.cycles += 1;
         Ok(())
     }
@@ -260,9 +257,10 @@ impl DCPU {
 
     pub fn dcpu_adx(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a) as u32;
-        let val_b = *self.get_dst(b)? as u32;
-        let res = val_b + val_a + self.ex as u32;
-        *self.get_dst(b)? = res as u16;
+        let ex = self.ex as u32;
+        let dst = self.get_dst(b)?;
+        let res = *dst as u32 + val_a + ex;
+        *dst = res as u16;
         self.ex = if res > 0xFFFF { 0x0001 } else { 0x0000 };
         self.cycles += 3;
         Ok(())
@@ -270,9 +268,10 @@ impl DCPU {
 
     pub fn dcpu_sbx(&mut self, a: u16, b: u16) -> Result<(), String> {
         let val_a = self.get_src(a) as i32;
-        let val_b = *self.get_dst(b)? as i32;
-        let res = val_b - val_a + self.ex as i16 as i32;
-        *self.get_dst(b)? = res as u16;
+        let ex = self.ex as i16 as i32;
+        let dst = self.get_dst(b)?;
+        let res = *dst as i32 - val_a + ex;
+        *dst = res as u16;
         self.ex = if res < 0 {
             0xFFFF
         } else if res > 0xFFFF {
