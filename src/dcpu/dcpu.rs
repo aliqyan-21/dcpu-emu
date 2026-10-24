@@ -4,6 +4,8 @@ dcpu struct and important initializing and prining functions
 
 use super::super::assembler::*;
 
+pub trait Device {}
+
 pub struct DCPU {
     pub ram: [u16; 0x10000], // 128 KB ram
     pub registers: [u16; 8], // A B C X Y Z I J
@@ -13,6 +15,7 @@ pub struct DCPU {
     pub ia: u16,             // interrupt address
     pub iaq: bool,           // interrupt queue
     pub cycles: u64,
+    pub devices: Vec<Box<dyn Device>>,
 }
 
 const START_ADDRESS: u16 = 0x0000;
@@ -28,6 +31,7 @@ impl DCPU {
             ia: 0,
             iaq: false,
             cycles: 0,
+            devices: Vec::new(),
         }
     }
 

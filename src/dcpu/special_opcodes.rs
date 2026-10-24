@@ -57,8 +57,11 @@ impl DCPU {
         self.cycles += 2;
     }
 
-    pub fn dcpu_hwn(&mut self, _a: u16) {
-        todo!("HWN");
+    pub fn dcpu_hwn(&mut self, a: u16) -> Result<(), String> {
+        let n = self.devices.len() as u16;
+        *self.get_dst(a)? = n;
+        self.cycles += 2;
+        Ok(())
     }
 
     pub fn dcpu_hwq(&mut self, _a: u16) {
