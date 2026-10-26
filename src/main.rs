@@ -5,6 +5,14 @@ mod dcpu;
 #[cfg(test)]
 mod test_corpus;
 
+fn new_dcpu(args: &common::parse_cli::Args) -> dcpu::dcpu::DCPU {
+    let mut dcpu = dcpu::dcpu::DCPU::new();
+    if args.clock {
+        dcpu.devices.push(Box::new(dcpu::clock::Clock::new()));
+    }
+    dcpu
+}
+
 fn main() {
     let argv: Vec<String> = std::env::args().collect();
     let args = match common::parse_cli::parse_args(argv) {
@@ -16,7 +24,7 @@ fn main() {
     };
 
     if args.rom {
-        let mut dcpu = dcpu::dcpu::DCPU::new();
+        let mut dcpu = new_dcpu(&args);
         println!("DCPU initialized successfully with ROM!");
 
         dcpu.load_rom(args.filepath);
@@ -42,7 +50,7 @@ fn main() {
             println!("0x{:04x}", inst);
         }
     } else {
-        let mut dcpu = dcpu::dcpu::DCPU::new();
+        let mut dcpu = new_dcpu(&args);
         println!("DCPU initialized successfully!");
 
         if let Err(e) = dcpu.load_instructions(&args.filepath) {

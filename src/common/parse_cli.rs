@@ -3,6 +3,7 @@ pub struct Args {
     pub rom: bool,
     pub emit_rom: bool,
     pub trace: bool,
+    pub clock: bool,
     pub filepath: String,
 }
 
@@ -13,6 +14,7 @@ impl Args {
             rom: false,
             emit_rom: false,
             trace: false,
+            clock: false,
             filepath: String::new(),
         }
     }
@@ -25,6 +27,7 @@ pub fn usage() {
     eprintln!("--rom        take .rom file as input and run dcpu");
     eprintln!("--emit-rom   take .s file as input and emit rom instructions");
     eprintln!("--trace      traces register state and cycles at each instruction execution");
+    eprintln!("--clock      use clock device");
     eprintln!("--help/-h    print this help message");
 }
 
@@ -58,6 +61,9 @@ pub fn parse_args(argv: Vec<String>) -> Result<Args, String> {
             }
             "--trace" => {
                 args.trace = true;
+            }
+            "--clock" => {
+                args.clock = true;
             }
             "--help" | "-h" => {
                 usage();
