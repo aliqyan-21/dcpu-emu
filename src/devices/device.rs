@@ -1,4 +1,4 @@
-use super::dcpu::DCPU;
+use super::super::dcpu::dcpu::DCPU;
 
 pub trait Device {
     fn hardware_id(&self) -> u32;

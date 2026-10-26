@@ -1,5 +1,5 @@
-use crate::dcpu::clock::Clock;
 use crate::dcpu::dcpu::DCPU;
+use crate::devices::clock::Clock;
 use std::fs;
 use std::path::Path;
 

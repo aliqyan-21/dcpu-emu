@@ -1,6 +1,7 @@
 mod assembler;
 mod common;
 mod dcpu;
+mod devices;
 
 #[cfg(test)]
 mod test_corpus;
@@ -8,7 +9,7 @@ mod test_corpus;
 fn new_dcpu(args: &common::parse_cli::Args) -> dcpu::dcpu::DCPU {
     let mut dcpu = dcpu::dcpu::DCPU::new();
     if args.clock {
-        dcpu.devices.push(Box::new(dcpu::clock::Clock::new()));
+        dcpu.devices.push(Box::new(devices::clock::Clock::new()));
     }
     dcpu
 }

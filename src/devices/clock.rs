@@ -1,4 +1,4 @@
-use super::dcpu::DCPU;
+use super::super::dcpu::dcpu::DCPU;
 use super::device::Device;
 
 // cycles per real second (100 KHz)

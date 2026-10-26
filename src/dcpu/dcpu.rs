@@ -2,8 +2,8 @@
 dcpu struct and important initializing and prining functions
 */
 
-use super::super::assembler::*;
-use super::device::*;
+use super::super::assembler::assembler;
+use super::super::devices::device::Device;
 use std::collections::VecDeque;
 
 pub struct DCPU {
