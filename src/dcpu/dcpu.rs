@@ -3,8 +3,8 @@ dcpu struct and important initializing and prining functions
 */
 
 use super::super::assembler::*;
-
-pub trait Device {}
+use super::device::*;
+use std::collections::VecDeque;
 
 pub struct DCPU {
     pub ram: [u16; 0x10000], // 128 KB ram
@@ -16,6 +16,7 @@ pub struct DCPU {
     pub iaq: bool,           // interrupt queue
     pub cycles: u64,
     pub devices: Vec<Box<dyn Device>>,
+    pub int_queue: VecDeque<u16>,
 }
 
 const START_ADDRESS: u16 = 0x0000;
@@ -32,6 +33,7 @@ impl DCPU {
             iaq: false,
             cycles: 0,
             devices: Vec::new(),
+            int_queue: VecDeque::new(),
         }
     }
 
