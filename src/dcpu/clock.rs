@@ -27,9 +27,15 @@ impl Clock {
 }
 
 impl Device for Clock {
-    fn hardware_id(&self) -> u32 { 0x12d0_b402 }
-    fn version(&self) -> u16 { 1 }
-    fn manufacturer(&self) -> u32 { 0 }
+    fn hardware_id(&self) -> u32 {
+        0x12d0_b402
+    }
+    fn version(&self) -> u16 {
+        1
+    }
+    fn manufacturer(&self) -> u32 {
+        0
+    }
 
     fn interrupt(&mut self, dcpu: &mut DCPU) -> u32 {
         let now = dcpu.cycles;
@@ -37,7 +43,7 @@ impl Device for Clock {
             0 => {
                 let b = dcpu.registers[1] as u64;
                 self.start = now;
-                self.period = if b == 0 { 0 } else { CPU_HZ * (b / 60) };
+                self.period = if b == 0 { 0 } else { CPU_HZ * b / 60 };
                 self.fired = 0;
             }
 

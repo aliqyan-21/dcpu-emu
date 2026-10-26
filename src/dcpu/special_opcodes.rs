@@ -13,14 +13,32 @@ impl DCPU {
         self.cycles += 3;
     }
 
-    pub fn dcpu_int(&mut self, a: u16) {
-        if self.ia == 0 {
-            return;
-        }
+    pub fn dcpu_int(&mut self, a: u16) -> Result<(), String> {
         let msg = self.get_src(a);
-        self.iaq = true;
+        self.cycles += 4;
+        self.trigger_interrupt(msg)?;
+        Ok(())
+    }
 
+    // every interrupt source use this
+    pub fn trigger_interrupt(&mut self, msg: u16) -> Result<(), String> {
+        if self.ia == 0 {
+            return Ok(());
+        }
+        if self.iaq {
+            if self.int_queue.len() >= 256 {
+                return Err("DCPU-16 is on fire: interrupt queue overflow".to_string());
+            }
+            self.int_queue.push_back(msg);
+        } else {
+            self.enter_interrupt(msg);
+        }
+        Ok(())
+    }
+
+    fn enter_interrupt(&mut self, msg: u16) {
         // save
+        self.iaq = true;
         self.sp = self.sp.wrapping_sub(1);
         self.ram[self.sp as usize] = self.pc;
         self.sp = self.sp.wrapping_sub(1);
@@ -29,7 +47,17 @@ impl DCPU {
         // redirecting execution at IA and A = msg
         self.pc = self.ia;
         self.registers[0] = msg;
-        self.cycles += 4;
+    }
+
+    // after every instruction we will have to release one
+    // queued interrupt if allowed, so for that this fn
+    pub fn deliver_queued_interrupt(&mut self) {
+        if self.iaq || self.ia == 0 {
+            return;
+        }
+        if let Some(msg) = self.int_queue.pop_front() {
+            self.enter_interrupt(msg);
+        }
     }
 
     pub fn dcpu_iag(&mut self, a: u16) -> Result<(), String> {
@@ -64,11 +92,33 @@ impl DCPU {
         Ok(())
     }
 
-    pub fn dcpu_hwq(&mut self, _a: u16) {
-        todo!("HWQ");
+    pub fn dcpu_hwq(&mut self, a: u16) {
+        let idx = self.get_src(a) as usize;
+        self.cycles += 4;
+
+        let info = self
+            .devices
+            .get(idx)
+            .map(|d| (d.hardware_id(), d.version(), d.manufacturer()));
+
+        if let Some((id, ver, man)) = info {
+            self.registers[0] = id as u16;
+            self.registers[1] = (id >> 16) as u16;
+            self.registers[2] = ver;
+            self.registers[3] = man as u16;
+            self.registers[4] = (man >> 16) as u16;
+        }
     }
 
-    pub fn dcpu_hwi(&mut self, _a: u16) {
-        todo!("HWI");
+    pub fn dcpu_hwi(&mut self, a: u16) {
+        let idx = self.get_src(a) as usize;
+        self.cycles += 4;
+
+        if idx < self.devices.len() {
+            let mut devices = std::mem::take(&mut self.devices);
+            let extra = devices[idx].interrupt(self);
+            self.devices = devices;
+            self.cycles += extra as u64;
+        }
     }
 }

@@ -44,7 +44,7 @@ impl DCPU {
                     // opcode 0 hoga, b opcode hoga
                     match b {
                         0x01 => self.dcpu_jsr(a),
-                        0x08 => self.dcpu_int(a),
+                        0x08 => self.dcpu_int(a)?,
                         0x09 => self.dcpu_iag(a)?,
                         0x0a => self.dcpu_ias(a),
                         0x0b => self.dcpu_rfi(),
@@ -87,9 +87,23 @@ impl DCPU {
             if trace {
                 self.print_state();
             }
-            if self.pc == inst_pc {
+            if self.pc == inst_pc && self.ia == 0 {
                 println!("\nprogram halted (jump to self) at 0x{:04x}", inst_pc);
                 break;
+            }
+
+            self.deliver_queued_interrupt();
+
+            let now = self.cycles;
+            let mut msgs: Vec<u16> = Vec::new();
+            for d in self.devices.iter_mut() {
+                if let Some(m) = d.tick(now) {
+                    msgs.push(m as u16);
+                }
+            }
+
+            for m in msgs {
+                self.trigger_interrupt(m)?;
             }
         }
         Ok(())
