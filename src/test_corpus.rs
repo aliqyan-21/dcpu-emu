@@ -1,3 +1,4 @@
+use crate::dcpu::clock::Clock;
 use crate::dcpu::dcpu::DCPU;
 use std::fs;
 use std::path::Path;
@@ -21,6 +22,20 @@ fn parse_expect(src: &str) -> Vec<(String, u64)> {
                 let (k, v) = tok.split_once('=').expect("bad expect token");
                 out.push((k.to_lowercase(), parse_num(v).expect("bad expect value")));
             }
+        }
+    }
+    out
+}
+
+fn parse_devices(src: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    for line in src.lines() {
+        let line = line.trim();
+        if !line.starts_with(';') {
+            break;
+        }
+        if let Some(rest) = line.trim_start_matches(';').trim().strip_prefix("devices:") {
+            out.extend(rest.split_whitespace().map(|s| s.to_lowercase()));
         }
     }
     out
@@ -53,6 +68,12 @@ fn run_file(path: &Path) -> Result<bool, String> {
     }
 
     let mut dcpu = DCPU::new();
+    for name in parse_devices(&src) {
+        match name.as_str() {
+            "clock" => dcpu.devices.push(Box::new(Clock::new())),
+            other => return Err(format!("unknown device `{other}`")),
+        }
+    }
     dcpu.load_instructions(path.to_str().unwrap())?;
     dcpu.dcpu_run(false)?;
 
