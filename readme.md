@@ -35,4 +35,5 @@ cargo build
 [MIT](license.md)
 
 ### References
-[dcpu spec](https://gist.github.com/metaphox/3888117)
+- [dcpu spec](https://gist.github.com/metaphox/3888117)
+- [devices](https://github.com/lucaspiller/dcpu-specifications)
