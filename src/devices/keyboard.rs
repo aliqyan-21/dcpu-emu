@@ -20,6 +20,36 @@ pub struct Keyboard {
     script: VecDeque<(u64, KeyEvent)>,
 }
 
+fn with_shift(key: u16) -> u16 {
+    if key > 0xFF {
+        return key;
+    }
+
+    let c = key as u8;
+    (match c {
+        b'a'..=b'z' => c - 32,
+        b'[' | b'\\' | b']' => c + 32,
+        b'0' => b')',
+        b'1' => b'!',
+        b'2' => b'@',
+        b'3' => b'#',
+        b'4' => b'$',
+        b'5' => b'%',
+        b'6' => b'^',
+        b'7' => b'&',
+        b'8' => b'*',
+        b'9' => b'(',
+        b';' => b':',
+        b'=' => b'+',
+        b',' => b'<',
+        b'.' => b'>',
+        b'/' => b'?',
+        b'\'' => b'"',
+        b'`' => b'~',
+        _ => c,
+    } as u16)
+}
+
 impl Keyboard {
     pub fn new() -> Self {
         Self {
@@ -31,8 +61,37 @@ impl Keyboard {
         }
     }
 
-    pub fn press(&mut self, key: u16) {}
-    pub fn release(&mut self, key: u16) {}
+    pub fn press(&mut self, key: u16) {
+        if key as usize >= self.pressed.len() {
+            return;
+        }
+
+        if key != KEY_SHIFT && key != KEY_CTRL && self.buffer.len() < BUFFER_CAP {
+            let typed = if self.pressed[KEY_SHIFT as usize] {
+                with_shift(key)
+            } else {
+                key
+            };
+            self.buffer.push_back(typed);
+        }
+        self.pressed[key as usize] = true;
+        self.pending = true;
+    }
+
+    pub fn with_script(mut events: Vec<(u64, KeyEvent)>) -> Self {
+        events.sort_by_key(|(t, _)| *t);
+        let mut kbd = Self::new();
+        kbd.script = events.into();
+        kbd
+    }
+
+    pub fn release(&mut self, key: u16) {
+        if key as usize >= self.pressed.len() {
+            return;
+        }
+        self.pressed[key as usize] = false;
+        self.pending = true;
+    }
 }
 
 impl Device for Keyboard {
