@@ -8,8 +8,12 @@ mod test_corpus;
 
 fn new_dcpu(args: &common::parse_cli::Args) -> dcpu::dcpu::DCPU {
     let mut dcpu = dcpu::dcpu::DCPU::new();
-    if args.clock {
+    if args.devices.clock {
         dcpu.devices.push(Box::new(devices::clock::Clock::new()));
+    }
+    if args.devices.keyboard {
+        dcpu.devices
+            .push(Box::new(devices::keyboard::Keyboard::new()));
     }
     dcpu
 }

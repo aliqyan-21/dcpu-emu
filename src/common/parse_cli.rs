@@ -1,9 +1,23 @@
+pub struct Devices {
+    pub clock: bool,
+    pub keyboard: bool,
+}
+
+impl Devices {
+    pub fn new() -> Self {
+        Self {
+            clock: false,
+            keyboard: false,
+        }
+    }
+}
+
 pub struct Args {
     pub asm: bool,
     pub rom: bool,
     pub emit_rom: bool,
     pub trace: bool,
-    pub clock: bool,
+    pub devices: Devices,
     pub filepath: String,
 }
 
@@ -14,7 +28,7 @@ impl Args {
             rom: false,
             emit_rom: false,
             trace: false,
-            clock: false,
+            devices: Devices::new(),
             filepath: String::new(),
         }
     }
@@ -63,7 +77,10 @@ pub fn parse_args(argv: Vec<String>) -> Result<Args, String> {
                 args.trace = true;
             }
             "--clock" => {
-                args.clock = true;
+                args.devices.clock = true;
+            }
+            "--kbd" => {
+                args.devices.keyboard = true;
             }
             "--help" | "-h" => {
                 usage();
