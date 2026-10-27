@@ -1,5 +1,6 @@
 use crate::dcpu::dcpu::DCPU;
 use crate::devices::clock::Clock;
+use crate::devices::keyboard::*;
 use std::fs;
 use std::path::Path;
 
@@ -41,6 +42,31 @@ fn parse_devices(src: &str) -> Vec<String> {
     out
 }
 
+fn parse_keys(src: &str) -> Vec<(u64, KeyEvent)> {
+    let mut out = Vec::new();
+    for line in src.lines() {
+        let line = line.trim();
+        if !line.starts_with(';') {
+            break;
+        }
+        if let Some(rest) = line.trim_start_matches(';').trim().strip_prefix("keys:") {
+            for tok in rest.split_whitespace() {
+                let (t, ev) = tok.split_once(':').expect("bad keys token");
+                let time: u64 = t.parse().expect("bad cycle");
+                let (sign, key) = ev.split_at(1);
+                let key = parse_num(key).expect("bad key") as u16;
+                let event = match sign {
+                    "+" => KeyEvent::Press(key),
+                    "-" => KeyEvent::Release(key),
+                    _ => panic!("key event must start with + or -"),
+                };
+                out.push((time, event));
+            }
+        }
+    }
+    out
+}
+
 fn actual(cpu: &DCPU, key: &str) -> Option<u64> {
     Some(match key {
         "a" => cpu.registers[0] as u64,
@@ -68,9 +94,13 @@ fn run_file(path: &Path) -> Result<bool, String> {
     }
 
     let mut dcpu = DCPU::new();
+    let keys = parse_keys(&src);
     for name in parse_devices(&src) {
         match name.as_str() {
             "clock" => dcpu.devices.push(Box::new(Clock::new())),
+            "keyboard" => dcpu
+                .devices
+                .push(Box::new(Keyboard::with_script(keys.clone()))),
             other => return Err(format!("unknown device `{other}`")),
         }
     }
