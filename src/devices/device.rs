@@ -1,5 +1,8 @@
 use super::super::dcpu::dcpu::DCPU;
 
+// cycles per real second (100 KHz)
+pub const CPU_HZ: u64 = 100_000;
+
 pub trait Device {
     fn hardware_id(&self) -> u32;
     fn version(&self) -> u16;

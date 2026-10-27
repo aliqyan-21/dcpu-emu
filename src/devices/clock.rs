@@ -1,8 +1,5 @@
 use super::super::dcpu::dcpu::DCPU;
-use super::device::Device;
-
-// cycles per real second (100 KHz)
-pub const CPU_HZ: u64 = 100_000;
+use super::device::*;
 
 #[derive(Default)]
 pub struct Clock {
